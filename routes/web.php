@@ -1,8 +1,6 @@
 <?php
 
-use App\Livewire\SuperDuper\BlogList;
-use App\Livewire\SuperDuper\BlogDetails;
-use App\Livewire\SuperDuper\Pages\ContactUs;
+use App\Livewire\Pages\HomePage;
 use Illuminate\Support\Facades\Route;
 use Lab404\Impersonate\Services\ImpersonateManager;
 
@@ -17,36 +15,60 @@ use Lab404\Impersonate\Services\ImpersonateManager;
 |
 */
 
-Route::get('/', function () {
-    return view('components.superduper.pages.home');
-})->name('home');
+Route::get('/', HomePage::class)->name('home');
 
-Route::get('/blog', BlogList::class)->name('blog');
+// Services Routes
+Route::prefix('services')->name('services.')->group(function () {
+    Route::get('/', function () {
+        return view('pages.services');
+    })->name('index');
+    
+    Route::get('/category/{category:slug}', function ($category) {
+        return view('pages.services.category', compact('category'));
+    })->name('category');
+});
 
-Route::get('/blog/{slug}', BlogDetails::class)->name('blog.show');
+// Blog Routes
+Route::prefix('artikel')->name('artikel.')->group(function () {
+    Route::get('/', function () {
+        return view('pages.blog.index');
+    })->name('index');
+    
+    Route::get('/category/{category:slug}', function ($category) {
+        return view('pages.blog.category', compact('category'));
+    })->name('category');
+    
+    Route::get('/{post:slug}', function ($post) {
+        // Increment view count
+        $post->increment('view_count');
+        return view('pages.blog.post', compact('post'));
+    })->name('post');
+});
 
-Route::get('/contact-us', ContactUs::class)->name('contact-us');
+// Other Pages
+Route::get('/services', function () {
+    return view('pages.services');
+})->name('services');
 
-Route::get('/privacy-policy', function () {
-    return view('components.superduper.pages.coming-soon', ['page_type' => 'privacy']);
-})->name('privacy-policy');
+Route::get('/blog', function () {
+    return view('pages.blog.index');
+})->name('blog');
 
-Route::get('/terms-conditions', function () {
-    return view('components.superduper.pages.coming-soon', ['page_type' => 'privacy']);
-})->name('terms-conditions');
+Route::get('/about', function () {
+    return view('pages.about');
+})->name('about');
 
-Route::get('/coming-soon', function () {
-    return view('components.superduper.pages.coming-soon', ['page_type' => 'generic']);
-})->name('coming-soon');
+Route::get('/process', function () {
+    return view('pages.process');
+})->name('process');
 
-Route::post('/contact', [App\Http\Controllers\ContactController::class, 'submit'])
-    ->name('contact.submit');
+Route::get('/projects', function () {
+    return view('pages.projects');
+})->name('projects');
 
-// TODO: Create actual blog preview component
-Route::post('/blog-preview', function() {
-    // Implementation pending
-})->name('blog.preview');
-
+Route::get('/contact', function () {
+    return view('pages.contact');
+})->name('contact');
 Route::get('impersonate/leave', function() {
     if(!app(ImpersonateManager::class)->isImpersonating()) {
         return redirect('/');
