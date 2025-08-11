@@ -37,13 +37,13 @@
             <div class="col-sm-6 col-lg-3 pt-4 pt-sm-0">
                 <h4 class="text-color-dark font-weight-bold mb-3">Quick Links</h4>
                 <ul class="list list-unstyled">
-                    <li><a href="{{ route('home') }}" class="text-color-grey text-color-hover-primary">Home</a></li>
+                    {{-- <li><a href="{{ route('home') }}" class="text-color-grey text-color-hover-primary">Home</a></li>
                     <li><a href="{{ route('services') }}" class="text-color-grey text-color-hover-primary">Services</a></li>
                     <li><a href="{{ route('about') }}" class="text-color-grey text-color-hover-primary">About</a></li>
                     <li><a href="{{ route('process') }}" class="text-color-grey text-color-hover-primary">Process</a></li>
                     <li><a href="{{ route('projects') }}" class="text-color-grey text-color-hover-primary">Projects</a></li>
-                    <li><a href="{{ route('news') }}" class="text-color-grey text-color-hover-primary">News</a></li>
-                    <li><a href="{{ route('contact') }}" class="text-color-grey text-color-hover-primary">Contact</a></li>
+                    <li><a href="{{ route('artikel.index') }}" class="text-color-grey text-color-hover-primary">News</a></li>
+                    <li><a href="{{ route('contact') }}" class="text-color-grey text-color-hover-primary">Contact</a></li> --}}
                 </ul>
             </div>
             
@@ -51,12 +51,12 @@
             <div class="col-sm-6 col-lg-3 pt-4 pt-lg-0">
                 <h4 class="text-color-dark font-weight-bold mb-3">Services</h4>
                 <ul class="list list-unstyled">
-                    <li><a href="{{ route('services.accounting') }}" class="text-color-grey text-color-hover-primary">Accounting</a></li>
+                    {{-- <li><a href="{{ route('services.accounting') }}" class="text-color-grey text-color-hover-primary">Accounting</a></li>
                     <li><a href="{{ route('services.tax-planning') }}" class="text-color-grey text-color-hover-primary">Tax Planning</a></li>
                     <li><a href="{{ route('services.business-advisory') }}" class="text-color-grey text-color-hover-primary">Business Advisory</a></li>
                     <li><a href="{{ route('services.payroll') }}" class="text-color-grey text-color-hover-primary">Payroll Management</a></li>
                     <li><a href="{{ route('services.global-accounting') }}" class="text-color-grey text-color-hover-primary">Global Accounting</a></li>
-                    <li><a href="{{ route('services.admin') }}" class="text-color-grey text-color-hover-primary">Admin Services</a></li>
+                    <li><a href="{{ route('services.admin') }}" class="text-color-grey text-color-hover-primary">Admin Services</a></li> --}}
                 </ul>
             </div>
             

@@ -26,14 +26,14 @@ class Header extends Component
                       ->orWhere('name', 'like', '%service%')
                       ->orWhere('name', 'like', '%layanan%');
             })
-            ->withCount('posts')
+            ->withCount('banners')
             ->orderBy('name')
             ->get()
             ->map(function ($category) {
                 return [
                     'name' => $category->name,
                     'slug' => $category->slug,
-                    'posts_count' => $category->posts_count
+                    'banners_count' => $category->banners_count
                 ];
             });
     }

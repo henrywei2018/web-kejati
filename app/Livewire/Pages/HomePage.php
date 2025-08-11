@@ -17,6 +17,7 @@ class HomePage extends Component
     public $services;
     public $latestPosts;
     public $featuredPosts;
+    public $popularPosts;
 
     public $stats = [
         ['number' => '500+', 'label' => 'Happy Clients'],
@@ -31,6 +32,7 @@ class HomePage extends Component
         $this->loadServices();
         $this->loadLatestPosts();
         $this->loadFeaturedPosts();
+        $this->loadPopularPosts();
     }
 
     private function loadHeroBanner()
@@ -103,7 +105,37 @@ class HomePage extends Component
             ->where('status', 'published')
             ->where('published_at', '<=', now())
             ->orderBy('published_at', 'desc')
-            ->limit(3)
+            ->limit(5)
+            ->get()
+            ->map(function ($post) {
+                return [
+                    'id' => $post->id,
+                    'title' => $post->title,
+                    'slug' => $post->slug,
+                    'content_overview' => $post->content_overview,
+                    'published_at' => $post->published_at,
+                    'reading_time' => $post->reading_time,
+                    'view_count' => $post->view_count,
+                    'category' => $post->category ? [
+                        'name' => $post->category->name,
+                        'slug' => $post->category->slug
+                    ] : null,
+                    'author' => $post->author ? [
+                        'name' => $post->author->name ?? trim(($post->author->firstname ?? '') . ' ' . ($post->author->lastname ?? ''))
+                    ] : null,
+                    'featured_image' => $post->getFirstMediaUrl() ?: null,
+                    'featured_image_thumb' => $post->getFirstMediaUrl('thumb') ?: null,
+                ];
+            })
+            ->toArray();
+    }
+    private function loadPopularPosts()
+    {
+        // Load latest published blog posts
+        $this->PopularPosts = Post::with(['category', 'author', 'media'])
+            ->where('status', 'published')
+            ->orderBy('view_count', 'desc')
+            ->limit(5)
             ->get()
             ->map(function ($post) {
                 return [
@@ -180,7 +212,7 @@ class HomePage extends Component
     }
 
     public function render()
-    {
+    {   
         return view('livewire.pages.home-page')
             ->layout('layouts.main', [
                 'title' => 'Home - Professional Accounting Services',
