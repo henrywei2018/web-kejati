@@ -18,7 +18,7 @@ html {
 
 body {
 	background-color: var(--light);
-	color: var(--default);
+	color: var(--secondary);
 	font-family: "Poppins", Arial, sans-serif;
 	font-size: 14px;
 	line-height: 26px;
@@ -5792,11 +5792,11 @@ html[dir="rtl"] #header .tip-light:before {
 /* Header Nav Main Light - Skin */
 @media (min-width: 992px) {
 	#header .header-nav-main.header-nav-main-light nav > ul > li.open > a, #header .header-nav-main.header-nav-main-light nav > ul > li:hover > a {
-		color: var(--primary);
+		color: var(--secondary--100);
 	}
 
 	#header .header-nav-main.header-nav-main-light nav > ul > li > a.active {
-		color: var(--primary);
+		color: var(--secondary--100);
 	}
 }
 
@@ -15772,8 +15772,8 @@ html body .rounded-circle {
 
 /* #Footer */
 #footer {
-	background: var(--dark);
-	border-top: 4px solid var(--dark);
+	background: #05ac69;
+	border-top: 4px solid #dafa4c;
 	font-size: 0.9em;
 	margin-top: 50px;
 	padding: 0;
@@ -16006,7 +16006,7 @@ html body .rounded-circle {
 }
 
 #footer .footer-copyright {
-	background: var(--dark-100);
+	background: #038f1a;
 }
 
 #footer .footer-copyright nav {
