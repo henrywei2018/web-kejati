@@ -610,7 +610,7 @@
 								</style>
 								<script async src="https://www.instagram.com/embed.js"></script>
 								<blockquote class="instagram-media"
-									data-instgrm-permalink="https://www.instagram.com/bakesbangpol.kaltara/"
+									data-instgrm-permalink="https://www.instagram.com/kejati_kalimantan_utara/"
 									data-instgrm-version="14"
 									style="background:#FFF; border:0; border-radius:16px; box-shadow:none; margin:0; padding:0;">
 								</blockquote>
