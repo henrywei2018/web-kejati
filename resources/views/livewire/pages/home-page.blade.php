@@ -1,6 +1,6 @@
 <div>
     <!-- Hero Section -->
-    <div class="row px-xl-0 py-1 overflow-hidden">
+    <div class="row px-xl-0 py-2 overflow-hidden">
         {{-- main banner --}}
         <div class="owl-carousel owl-carousel-light owl-carousel-light-init-fadeIn owl-theme manual nav-style-1 nav-arrows-thin nav-inside nav-inside-plus nav-dark nav-lg nav-font-size-lg rounded-nav nav-borders show-nav-hover mb-0"
             data-plugin-options="{'autoplay': true, 'autoplayTimeout': 7000}"

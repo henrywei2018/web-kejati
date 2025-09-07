@@ -1,6 +1,7 @@
 <?php
 
 use App\Livewire\Pages\HomePage;
+use App\Livewire\Pages\AboutUs;
 use Illuminate\Support\Facades\Route;
 use Lab404\Impersonate\Services\ImpersonateManager;
 
@@ -54,9 +55,7 @@ Route::get('/blog', function () {
     return view('pages.blog.index');
 })->name('blog');
 
-Route::get('/about', function () {
-    return view('pages.about');
-})->name('about');
+Route::get('/about', AboutUs::class)->name('about');
 
 Route::get('/process', function () {
     return view('pages.process');

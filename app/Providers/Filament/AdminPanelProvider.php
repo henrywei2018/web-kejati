@@ -5,7 +5,6 @@ namespace App\Providers\Filament;
 use App\Filament\Pages\Auth\EmailVerification;
 use App\Filament\Pages\Auth\Login;
 use App\Filament\Pages\Auth\RequestPasswordReset;
-use App\Filament\Resources\MenuResource;
 use App\Http\Middleware\FilamentRobotsMiddleware;
 use App\Livewire\MyProfileExtended;
 use App\Settings\GeneralSettings;
@@ -129,27 +128,6 @@ class AdminPanelProvider extends PanelProvider
                     ->myProfileComponents([
                         'personal_info' => MyProfileExtended::class,
                     ]),
-                \Datlechin\FilamentMenuBuilder\FilamentMenuBuilderPlugin::make()
-                    ->addLocations([
-                        'header' => 'Header',
-                        'footer' => 'Footer',
-                        'footer-2' => 'Footer 2',
-                        'footer-3' => 'Footer 3',
-                        'footer-4' => 'Footer 4',
-                    ])
-                    ->usingResource(MenuResource::class)
-                    ->addMenuPanels([
-                        \Datlechin\FilamentMenuBuilder\MenuPanel\StaticMenuPanel::make()
-                            ->addMany([
-                                'Home' => url('/'),
-                                'Blog' => url('/blog'),
-                                'Contact Us' => url('/contact-us'),
-                            ])
-                            ->description('Default menus')
-                            ->collapsed(true)
-                            ->collapsible(true)
-                            ->paginate(perPage: 5, condition: true)
-                    ])
             ]);
     }
 }

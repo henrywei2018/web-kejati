@@ -2,7 +2,7 @@
     data-plugin-options="{'stickyScrollUp': true, 'stickyEnabled': true, 'stickyEffect': 'shrink', 'stickyEnableOnBoxed': true, 'stickyEnableOnMobile': false, 'stickyChangeLogo': false, 'stickyStartAt': 100, 'stickyHeaderContainerHeight': 100}">
     <div class="header-body border-top-0 h-auto box-shadow-none bg-primary  ">
         <div class="container-fluid px-3 px-lg-5 p-static">
-            <div class="row align-items-center py-3">
+            <div class="row align-items-center py-1">
                 <div class="col-auto col-lg-2 col-xxl-3 me-auto me-lg-0">
                     <div class="header-logo" data-clone-element-to="#offCanvasLogo">
                         <a href="demo-accounting-1.html">
@@ -88,7 +88,7 @@
                                 123 4567</a>
                         </div> --}}
                         <a href="demo-accounting-1-contact.html"
-                            class="btn btn-rounded btn-dark box-shadow-7 font-weight-medium px-3 py-2 text-2-5 btn-swap-1 ms-3 d-none d-md-flex"
+                            class="btn btn-rounded btn-secondary box-shadow-7 font-weight-medium px-3 py-2 text-2-5 btn-swap-1 ms-3 d-none d-md-flex"
                             data-clone-element="1">
                             <span>Login <i class="fa-solid fa-arrow-right ms-2"></i></span>
                         </a>
