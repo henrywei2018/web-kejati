@@ -2,6 +2,7 @@
 
 use App\Livewire\Pages\HomePage;
 use App\Livewire\Pages\AboutUs;
+use App\Livewire\Pages\Profil\Show as ProfilShow;
 use Illuminate\Support\Facades\Route;
 use Lab404\Impersonate\Services\ImpersonateManager;
 
@@ -56,6 +57,18 @@ Route::get('/blog', function () {
 })->name('blog');
 
 Route::get('/about', AboutUs::class)->name('about');
+
+// Profil Routes
+Route::prefix('profil')->name('profil.')->group(function () {
+    Route::get('/', function () {
+        $profils = \App\Models\Profil::active()->ordered()->get();
+        return view('pages.profil.index', compact('profils'));
+    })->name('index');
+
+    Route::get('/{slug}', function ($slug) {
+        return app(ProfilShow::class)(['slug' => $slug]);
+    })->name('show');
+});
 
 Route::get('/process', function () {
     return view('pages.process');

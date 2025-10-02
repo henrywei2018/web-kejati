@@ -2,14 +2,11 @@
     @livewire('components.header-details', [
         'title' => 'Our Team',
         'badge' => 'Meet The Experts',
-        'breadcrumbs' => [
-            ['label' => 'About', 'url' => route('about')],
-            ['label' => 'Team']
-        ],
+        'breadcrumbs' => [['label' => 'About', 'url' => route('about')], ['label' => 'Team']],
         'image' => asset('frontend/img/waves-2.svg'),
         'backgroundClass' => 'bg-primary',
         'titleClass' => 'text-secondary text-9 text-lg-12 font-weight-bold line-height-1 mb-2',
-        'badgeClass' => 'badge bg-quaternary text-light rounded-pill text-uppercase font-weight-bold text-2-5 px-4 py-2 mb-3'
+        'badgeClass' => 'badge bg-quaternary text-light rounded-pill text-uppercase font-weight-bold text-2-5 px-4 py-2 mb-3',
     ])
     <div class="container pb-5 pt-lg-5 mt-5">
         <div class="row">

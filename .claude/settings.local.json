@@ -1,7 +1,14 @@
 {
   "permissions": {
     "allow": [
-      "Bash(composer remove:*)"
+      "Bash(composer remove:*)",
+      "Bash(composer install:*)",
+      "Bash(php artisan serve:*)",
+      "Bash(rm:*)",
+      "Bash(php artisan:*)",
+      "Bash(php artisan config:clear:*)",
+      "Bash(php artisan view:clear:*)",
+      "Bash(find:*)"
     ],
     "deny": [],
     "ask": []
