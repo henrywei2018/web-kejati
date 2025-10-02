@@ -21,7 +21,7 @@ class ProfilResource extends Resource
 
     protected static ?string $navigationIcon = 'heroicon-o-document-text';
 
-    protected static ?string $navigationGroup = 'Halaman';
+    protected static ?string $navigationGroup = 'Sites';
 
     protected static ?string $navigationLabel = 'Profil';
 

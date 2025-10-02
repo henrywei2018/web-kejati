@@ -12,8 +12,8 @@ class MainLayout extends Component
     public $bodyClass;
 
     public function __construct(
-        $title = 'Demo Accounting 1',
-        $metaDescription = 'Porto - Multipurpose Website Template',
+        $title = 'Kejaksaan Tinggi',
+        $metaDescription = 'Kejaksaan Tinggi - Kalimantan Utara',
         $metaKeywords = 'WebSite Template',
         $bodyClass = ''
     ) {

@@ -2,7 +2,6 @@
 
 use App\Livewire\Pages\HomePage;
 use App\Livewire\Pages\AboutUs;
-use App\Livewire\Pages\Profil\Show as ProfilShow;
 use Illuminate\Support\Facades\Route;
 use Lab404\Impersonate\Services\ImpersonateManager;
 
@@ -66,7 +65,21 @@ Route::prefix('profil')->name('profil.')->group(function () {
     })->name('index');
 
     Route::get('/{slug}', function ($slug) {
-        return app(ProfilShow::class)(['slug' => $slug]);
+        $profil = \App\Models\Profil::where('slug', $slug)
+            ->where('is_active', true)
+            ->firstOrFail();
+
+        $metaDescription = $profil->meta['meta_description'] ??
+            strip_tags(substr($profil->content, 0, 160));
+
+        $metaKeywords = $profil->meta['meta_keywords'] ?? $profil->title;
+
+        return view('pages.profil.show-wrapper', [
+            'profil' => $profil,
+            'title' => $profil->title,
+            'metaDescription' => $metaDescription,
+            'metaKeywords' => $metaKeywords,
+        ]);
     })->name('show');
 });
 
