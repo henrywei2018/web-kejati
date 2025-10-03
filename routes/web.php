@@ -60,13 +60,15 @@ Route::get('/about', AboutUs::class)->name('about');
 // Profil Routes
 Route::prefix('profil')->name('profil.')->group(function () {
     Route::get('/', function () {
-        $profils = \App\Models\Profil::active()->ordered()->get();
+        $profils = \App\Models\Profil::active()->parents()->ordered()->get();
         return view('pages.profil.index', compact('profils'));
     })->name('index');
 
-    Route::get('/{slug}', function ($slug) {
-        $profil = \App\Models\Profil::where('slug', $slug)
+    // Parent profil route: /profil/{parent_slug}
+    Route::get('/{parent_slug}', function ($parent_slug) {
+        $profil = \App\Models\Profil::where('slug', $parent_slug)
             ->where('is_active', true)
+            ->whereNull('parent_id')
             ->firstOrFail();
 
         $metaDescription = $profil->meta['meta_description'] ??
@@ -81,6 +83,33 @@ Route::prefix('profil')->name('profil.')->group(function () {
             'metaKeywords' => $metaKeywords,
         ]);
     })->name('show');
+
+    // Child profil route: /profil/{parent_slug}/{child_slug}
+    Route::get('/{parent_slug}/{child_slug}', function ($parent_slug, $child_slug) {
+        // Find parent first
+        $parent = \App\Models\Profil::where('slug', $parent_slug)
+            ->where('is_active', true)
+            ->whereNull('parent_id')
+            ->firstOrFail();
+
+        // Find child under this parent
+        $profil = \App\Models\Profil::where('slug', $child_slug)
+            ->where('is_active', true)
+            ->where('parent_id', $parent->id)
+            ->firstOrFail();
+
+        $metaDescription = $profil->meta['meta_description'] ??
+            strip_tags(substr($profil->content, 0, 160));
+
+        $metaKeywords = $profil->meta['meta_keywords'] ?? $profil->title;
+
+        return view('pages.profil.show-wrapper', [
+            'profil' => $profil,
+            'title' => $profil->title,
+            'metaDescription' => $metaDescription,
+            'metaKeywords' => $metaKeywords,
+        ]);
+    })->name('show.child');
 });
 
 Route::get('/process', function () {
@@ -94,6 +123,55 @@ Route::get('/projects', function () {
 Route::get('/contact', function () {
     return view('pages.contact');
 })->name('contact');
+
+// Dynamic Page Routes - Must be LAST to act as catch-all
+// Parent page route: /{parent_slug}
+Route::get('/{parent_slug}', function ($parent_slug) {
+    $page = \App\Models\Page::where('slug', $parent_slug)
+        ->where('is_active', true)
+        ->whereNull('parent_id')
+        ->firstOrFail();
+
+    $metaDescription = $page->meta['meta_description'] ??
+        strip_tags(substr($page->content, 0, 160));
+
+    $metaKeywords = $page->meta['meta_keywords'] ?? $page->title;
+
+    return view('pages.dynamic.show', [
+        'page' => $page,
+        'title' => $page->title,
+        'metaDescription' => $metaDescription,
+        'metaKeywords' => $metaKeywords,
+    ]);
+})->name('page.show');
+
+// Child page route: /{parent_slug}/{child_slug}
+Route::get('/{parent_slug}/{child_slug}', function ($parent_slug, $child_slug) {
+    // Find parent first
+    $parent = \App\Models\Page::where('slug', $parent_slug)
+        ->where('is_active', true)
+        ->whereNull('parent_id')
+        ->firstOrFail();
+
+    // Find child under this parent
+    $page = \App\Models\Page::where('slug', $child_slug)
+        ->where('is_active', true)
+        ->where('parent_id', $parent->id)
+        ->firstOrFail();
+
+    $metaDescription = $page->meta['meta_description'] ??
+        strip_tags(substr($page->content, 0, 160));
+
+    $metaKeywords = $page->meta['meta_keywords'] ?? $page->title;
+
+    return view('pages.dynamic.show', [
+        'page' => $page,
+        'title' => $page->title,
+        'metaDescription' => $metaDescription,
+        'metaKeywords' => $metaKeywords,
+    ]);
+})->name('page.show.child');
+
 Route::get('impersonate/leave', function() {
     if(!app(ImpersonateManager::class)->isImpersonating()) {
         return redirect('/');

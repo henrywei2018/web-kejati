@@ -47,6 +47,9 @@
     <!-- Theme Custom CSS -->
     <link rel="stylesheet" href="{{ asset('frontend/css/custom.css') }}">
 
+    <!-- Kejaksaan RI Theme -->
+    <link rel="stylesheet" href="{{ asset('css/kejaksaan-theme.css') }}">
+
     @stack('styles')
     @livewireStyles
 </head>

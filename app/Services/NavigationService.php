@@ -48,21 +48,41 @@ class NavigationService
     }
 
     /**
-     * Get profil submenu items dynamically
+     * Get profil submenu items dynamically with nested children
      */
     public function getProfilMenu(): array
     {
-        $profils = Profil::active()->ordered()->get();
+        // Get only parent profils (no parent_id)
+        $profils = Profil::active()
+            ->parents()
+            ->ordered()
+            ->with(['activeChildren'])
+            ->get();
 
         $menu = [];
 
         foreach ($profils as $profil) {
-            $menu[] = [
+            $item = [
                 'label' => $profil->title,
                 'route' => 'profil.show',
                 'url' => route('profil.show', $profil->slug),
                 'active' => $this->isActiveRoute('profil.show') && request()->route('slug') === $profil->slug,
             ];
+
+            // Add children if exists
+            if ($profil->activeChildren->isNotEmpty()) {
+                $item['children'] = [];
+                foreach ($profil->activeChildren as $child) {
+                    $item['children'][] = [
+                        'label' => $child->title,
+                        'route' => 'profil.show',
+                        'url' => route('profil.show', $child->slug),
+                        'active' => $this->isActiveRoute('profil.show') && request()->route('slug') === $child->slug,
+                    ];
+                }
+            }
+
+            $menu[] = $item;
         }
 
         return $menu;
@@ -122,8 +142,17 @@ class NavigationService
             $breadcrumbs[] = ['label' => 'Profil', 'url' => route('profil.index')];
 
             if ($currentRoute === 'profil.show' && request()->route('slug')) {
-                $profil = Profil::where('slug', request()->route('slug'))->first();
+                $profil = Profil::where('slug', request()->route('slug'))->with('parent')->first();
                 if ($profil) {
+                    // Add parent breadcrumb if exists
+                    if ($profil->parent) {
+                        $breadcrumbs[] = [
+                            'label' => $profil->parent->title,
+                            'url' => route('profil.show', $profil->parent->slug)
+                        ];
+                    }
+
+                    // Add current page
                     $breadcrumbs[] = ['label' => $profil->title];
                 }
             }

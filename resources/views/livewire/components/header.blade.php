@@ -1,8 +1,8 @@
 <header id="header"
-    data-plugin-options="{'stickyScrollUp': true, 'stickyEnabled': true, 'stickyEffect': 'shrink', 'stickyEnableOnBoxed': true, 'stickyEnableOnMobile': false, 'stickyChangeLogo': false, 'stickyStartAt': 140, 'stickyHeaderContainerHeight': 100}">
+    data-plugin-options="{'stickyScrollUp': true, 'stickyEnabled': true, 'stickyEffect': 'shrink', 'stickyEnableOnBoxed': true, 'stickyEnableOnMobile': false, 'stickyChangeLogo': false, 'stickyStartAt': 100}">
 
     {{-- Top Bar --}}
-    <div class="header-top bg-dark py-2" data-sticky-header-style="{'minResolution': 0}" data-sticky-header-style-active="{'background-color': 'transparent'}" data-sticky-header-style-deactive="{'background-color': 'rgb(25, 25, 25)'}">
+    <div class="header-top py-2" style="background: #1B5E20;">
         <div class="container-fluid px-3 px-lg-5">
             <div class="row align-items-center">
                 <div class="col-auto d-none d-md-block">
@@ -76,12 +76,33 @@
                                                 </a>
                                                 <ul class="dropdown-menu">
                                                     @foreach($item['children'] as $child)
-                                                        <li>
-                                                            <a href="{{ $child['url'] }}"
-                                                               class="dropdown-item anim-hover-translate-right-5px transition-3ms text-lg-2 py-lg-2 {{ $child['active'] ? 'active' : '' }}">
-                                                                {{ $child['label'] }}
-                                                            </a>
-                                                        </li>
+                                                        @if(isset($child['children']) && count($child['children']) > 0)
+                                                            {{-- Nested dropdown (child with sub-children) --}}
+                                                            <li class="dropdown-submenu">
+                                                                <a href="{{ $child['url'] }}"
+                                                                   class="dropdown-item dropdown-toggle {{ $child['active'] ? 'active' : '' }}">
+                                                                    {{ $child['label'] }}
+                                                                </a>
+                                                                <ul class="dropdown-menu">
+                                                                    @foreach($child['children'] as $subChild)
+                                                                        <li>
+                                                                            <a href="{{ $subChild['url'] }}"
+                                                                               class="dropdown-item anim-hover-translate-right-5px transition-3ms text-lg-2 py-lg-2 {{ $subChild['active'] ? 'active' : '' }}">
+                                                                                {{ $subChild['label'] }}
+                                                                            </a>
+                                                                        </li>
+                                                                    @endforeach
+                                                                </ul>
+                                                            </li>
+                                                        @else
+                                                            {{-- Regular child item --}}
+                                                            <li>
+                                                                <a href="{{ $child['url'] }}"
+                                                                   class="dropdown-item anim-hover-translate-right-5px transition-3ms text-lg-2 py-lg-2 {{ $child['active'] ? 'active' : '' }}">
+                                                                    {{ $child['label'] }}
+                                                                </a>
+                                                            </li>
+                                                        @endif
                                                     @endforeach
                                                 </ul>
                                             </li>
@@ -124,95 +145,234 @@
         </div>
     </div>
     <style>
-    /* ========== Modern Navigation Styles ========== */
+    /* ========== Kejaksaan RI Navigation Styles - Enhanced ========== */
 
-    /* Main Navigation */
+    /* Top Bar - Kejaksaan Green */
+    .header-top {
+        background: #1B5E20 !important;
+        transition: all 0.3s ease;
+    }
+
+    .header-top a {
+        transition: all 0.3s ease;
+    }
+
+    .header-top a:hover {
+        color: #FDD835 !important;
+    }
+
+    /* Top bar visibility control - Override plugin behavior */
+    .header-top {
+        display: block !important;
+        visibility: visible !important;
+        opacity: 1 !important;
+        max-height: 100px !important;
+        overflow: visible !important;
+        transition: all 0.3s ease !important;
+    }
+
+    /* Hide top bar ONLY when header has sticky class */
+    #header.sticky .header-top,
+    #header.header-effect-shrink.sticky .header-top {
+        max-height: 0 !important;
+        opacity: 0 !important;
+        padding-top: 0 !important;
+        padding-bottom: 0 !important;
+        overflow: hidden !important;
+    }
+
+    /* Ensure top bar shows when NOT sticky */
+    #header:not(.sticky) .header-top,
+    #header.header-effect-shrink:not(.sticky) .header-top {
+        max-height: 100px !important;
+        opacity: 1 !important;
+        padding-top: 0.5rem !important;
+        padding-bottom: 0.5rem !important;
+        overflow: visible !important;
+    }
+
+    /* Main Navigation - Clean & Professional */
     .header-nav-main .nav-link {
-        color: #1a202c !important;
+        color: #263238 !important;
         font-weight: 500;
         font-size: 15px;
-        padding: 10px 18px !important;
-        border-radius: 8px;
-        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        padding: 12px 20px !important;
+        border-radius: 0 !important;
+        transition: all 0.3s ease;
         position: relative;
+        background: transparent !important;
+        border-bottom: 3px solid transparent;
     }
 
-    /* Active State - Modern with underline */
+    /* Remove default nav-pills active state */
+    .nav-pills .nav-link.active {
+        background: transparent !important;
+    }
+
+    /* Active State - Clean Gold Underline */
     .header-nav-main .nav-link.active {
-        color: #0066cc !important;
-        background: linear-gradient(135deg, rgba(0, 102, 204, 0.05) 0%, rgba(0, 102, 204, 0.1) 100%) !important;
+        color: #1B5E20 !important;
         font-weight: 600;
+        border-bottom-color: #D4AF37 !important;
     }
 
-    .header-nav-main .nav-link.active::after {
+    /* Hover State - Smooth Gold Underline */
+    .header-nav-main .nav-link:hover:not(.active) {
+        color: #1B5E20 !important;
+        border-bottom-color: #FDD835 !important;
+    }
+
+    /* Dropdown Toggle - Only parent gets active state */
+    .header-nav-main .dropdown .nav-link.dropdown-toggle.active {
+        color: #1B5E20 !important;
+        font-weight: 600;
+        border-bottom-color: #D4AF37 !important;
+    }
+
+    /* Dropdown Hover - Only show underline on hover */
+    .header-nav-main .dropdown:hover .nav-link.dropdown-toggle:not(.active) {
+        color: #1B5E20 !important;
+        border-bottom-color: #FDD835 !important;
+    }
+
+    /* Dropdown Menu - Clean Professional Style */
+    .dropdown-menu {
+        border: 1px solid rgba(27, 94, 32, 0.1) !important;
+        box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12) !important;
+        border-radius: 8px !important;
+        padding: 8px 12px 12px 12px !important; /* Top padding lebih kecil untuk visual */
+        margin-top: 4px !important; /* Small gap untuk visual clarity */
+        min-width: 240px;
+    }
+
+    /* Extend dropdown hover area */
+    .dropdown::after {
         content: '';
         position: absolute;
-        bottom: 5px;
-        left: 18px;
-        right: 18px;
-        height: 3px;
-        background: linear-gradient(90deg, #0066cc 0%, #0099ff 100%);
-        border-radius: 2px;
+        bottom: -4px; /* Bridge area */
+        left: 0;
+        right: 0;
+        height: 4px;
+        background: transparent;
+        pointer-events: auto;
     }
 
-    /* Hover State */
-    .header-nav-main .nav-link:hover {
-        color: #0066cc !important;
-        background: rgba(0, 102, 204, 0.05) !important;
-        transform: translateY(-2px);
-    }
-
-    /* Dropdown Menu Modern Style */
+    /* Smooth dropdown appearance */
     .dropdown-menu {
-        border: none !important;
-        box-shadow: 0 10px 40px rgba(0, 0, 0, 0.12) !important;
-        border-radius: 12px !important;
-        padding: 8px !important;
-        margin-top: 8px !important;
-        min-width: 220px;
+        animation: fadeInDown 0.2s ease-out;
+    }
+
+    @keyframes fadeInDown {
+        from {
+            opacity: 0;
+            transform: translateY(-8px);
+        }
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
     }
 
     .dropdown-menu .dropdown-item {
-        border-radius: 8px !important;
+        border-radius: 6px !important;
         padding: 10px 16px !important;
         font-size: 14px !important;
-        color: #4a5568 !important;
+        color: #263238 !important;
         transition: all 0.2s ease !important;
-        margin-bottom: 2px;
+        margin-bottom: 4px;
+        font-weight: 500;
+        background: transparent !important;
     }
 
+    /* Dropdown Item Hover - Clean */
     .dropdown-menu .dropdown-item:hover {
-        background: linear-gradient(135deg, rgba(0, 102, 204, 0.08) 0%, rgba(0, 102, 204, 0.12) 100%) !important;
-        color: #0066cc !important;
-        transform: translateX(4px) !important;
+        background: rgba(27, 94, 32, 0.06) !important;
+        color: #1B5E20 !important;
+        transform: translateX(2px) !important;
+    }
+
+    /* Active Dropdown Item - Subtle indicator (untuk visual saja, active di parent) */
+    .dropdown-menu .dropdown-item.active {
+        background: rgba(212, 175, 55, 0.1) !important;
+        color: #1B5E20 !important;
+        font-weight: 600;
+        position: relative;
         padding-left: 20px !important;
     }
 
-    /* Active Dropdown Item */
-    .dropdown-menu .dropdown-item.active {
-        background: linear-gradient(135deg, #0066cc 0%, #0099ff 100%) !important;
-        color: white !important;
-        font-weight: 600;
-        box-shadow: 0 4px 12px rgba(0, 102, 204, 0.3);
+    .dropdown-menu .dropdown-item.active::before {
+        content: '';
+        position: absolute;
+        left: 8px;
+        top: 50%;
+        transform: translateY(-50%);
+        width: 4px;
+        height: 20px;
+        background: #D4AF37;
+        border-radius: 2px;
     }
 
     .dropdown-menu .dropdown-item.active:hover {
-        transform: translateX(0) !important;
-        padding-left: 16px !important;
+        background: rgba(212, 175, 55, 0.15) !important;
+        transform: translateX(2px) !important;
     }
 
-    /* Dropdown Arrow */
+    /* Dropdown Arrow Animation */
     .dropdown-toggle::after {
         transition: transform 0.3s ease;
+        margin-left: 8px;
     }
 
     .dropdown.show .dropdown-toggle::after {
         transform: rotate(180deg);
     }
 
+    /* Nested Dropdown (Submenu) Support */
+    .dropdown-submenu {
+        position: relative;
+    }
+
+    .dropdown-submenu .dropdown-menu {
+        top: 0;
+        left: 100%;
+        margin-top: -8px;
+        margin-left: 4px;
+    }
+
+    .dropdown-submenu .dropdown-toggle::after {
+        content: "\f054"; /* FontAwesome chevron-right */
+        font-family: "Font Awesome 5 Free";
+        font-weight: 900;
+        border: none;
+        margin-left: auto;
+        float: right;
+    }
+
+    .dropdown-submenu:hover > .dropdown-menu {
+        display: block;
+    }
+
+    .dropdown-submenu .dropdown-item.dropdown-toggle {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+    }
+
+    /* Mobile - Stack submenu vertically */
+    @media (max-width: 991px) {
+        .dropdown-submenu .dropdown-menu {
+            position: static;
+            margin-left: 16px;
+            box-shadow: none;
+            border-left: 2px solid rgba(212, 175, 55, 0.3);
+            border-radius: 0 8px 8px 0;
+            margin-top: 4px;
+        }
+    }
+
     /* Top Bar Animations */
     .opacity-8 {
-        opacity: 0.8;
+        opacity: 0.9;
     }
 
     .opacity-10,
@@ -224,37 +384,38 @@
         transition: opacity 0.3s ease;
     }
 
-    /* Mobile Menu Button */
+    /* Mobile Menu Button - Kejaksaan Style */
     .header-btn-collapse-nav {
-        background: #f7fafc;
-        border: 1px solid #e2e8f0;
-        color: #2d3748;
+        background: rgba(27, 94, 32, 0.05);
+        border: 2px solid #1B5E20;
+        color: #1B5E20;
         padding: 10px 16px;
         border-radius: 8px;
         transition: all 0.3s ease;
     }
 
     .header-btn-collapse-nav:hover {
-        background: #0066cc;
+        background: #1B5E20;
         color: white;
-        border-color: #0066cc;
+        border-color: #1B5E20;
     }
 
-    /* Search/Action Button */
+    /* CTA Button - Gold Authority */
     .btn-rounded.btn-secondary {
-        background: linear-gradient(135deg, #0066cc 0%, #0099ff 100%) !important;
+        background: linear-gradient(135deg, #D4AF37 0%, #FDD835 100%) !important;
         border: none !important;
-        color: white !important;
-        font-weight: 500 !important;
+        color: #263238 !important;
+        font-weight: 600 !important;
         padding: 10px 24px !important;
         border-radius: 50px !important;
         transition: all 0.3s ease !important;
-        box-shadow: 0 4px 12px rgba(0, 102, 204, 0.3) !important;
+        box-shadow: 0 4px 12px rgba(212, 175, 55, 0.4) !important;
     }
 
     .btn-rounded.btn-secondary:hover {
         transform: translateY(-2px) !important;
-        box-shadow: 0 6px 20px rgba(0, 102, 204, 0.4) !important;
+        box-shadow: 0 6px 20px rgba(212, 175, 55, 0.5) !important;
+        background: #FDD835 !important;
     }
 
     /* Smooth transitions */
@@ -300,5 +461,77 @@
             display: none !important;
         }
     }
+
+    /* Force top bar visibility at top of page */
+    .header-top.force-show {
+        max-height: 100px !important;
+        opacity: 1 !important;
+        padding-top: 0.5rem !important;
+        padding-bottom: 0.5rem !important;
+        overflow: visible !important;
+    }
+
+    .header-top.force-hide {
+        max-height: 0 !important;
+        opacity: 0 !important;
+        padding-top: 0 !important;
+        padding-bottom: 0 !important;
+        overflow: hidden !important;
+    }
     </style>
+
+    <script>
+    (function() {
+        let lastScrollTop = 0;
+        const header = document.getElementById('header');
+        const headerTop = document.querySelector('.header-top');
+
+        if (!header || !headerTop) return;
+
+        function handleTopBarVisibility() {
+            const scrollTop = window.pageYOffset || document.documentElement.scrollTop;
+
+            // At top of page (within 50px threshold)
+            if (scrollTop <= 50) {
+                headerTop.classList.remove('force-hide');
+                headerTop.classList.add('force-show');
+            }
+            // Scrolled down
+            else {
+                headerTop.classList.remove('force-show');
+                headerTop.classList.add('force-hide');
+            }
+
+            lastScrollTop = scrollTop;
+        }
+
+        // Initial check
+        handleTopBarVisibility();
+
+        // Listen to scroll events with throttling
+        let ticking = false;
+        window.addEventListener('scroll', function() {
+            if (!ticking) {
+                window.requestAnimationFrame(function() {
+                    handleTopBarVisibility();
+                    ticking = false;
+                });
+                ticking = true;
+            }
+        });
+
+        // Also listen to Porto's sticky header events if available
+        if (header.dataset.pluginOptions) {
+            const observer = new MutationObserver(function(mutations) {
+                mutations.forEach(function(mutation) {
+                    if (mutation.attributeName === 'class') {
+                        handleTopBarVisibility();
+                    }
+                });
+            });
+
+            observer.observe(header, { attributes: true });
+        }
+    })();
+    </script>
 </header>

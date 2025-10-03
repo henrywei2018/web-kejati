@@ -8,7 +8,8 @@
       "Bash(php artisan:*)",
       "Bash(php artisan config:clear:*)",
       "Bash(php artisan view:clear:*)",
-      "Bash(find:*)"
+      "Bash(find:*)",
+      "Bash(cat:*)"
     ],
     "deny": [],
     "ask": []

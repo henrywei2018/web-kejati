@@ -2,9 +2,9 @@
 
 namespace App\Filament\Resources;
 
-use App\Filament\Resources\ProfilResource\Pages;
-use App\Filament\Resources\ProfilResource\RelationManagers;
-use App\Models\Profil;
+use App\Filament\Resources\PageResource\Pages;
+use App\Filament\Resources\PageResource\RelationManagers;
+use App\Models\Page;
 use Filament\Forms;
 use Filament\Forms\Form;
 use Filament\Resources\Resource;
@@ -15,19 +15,19 @@ use Illuminate\Database\Eloquent\SoftDeletingScope;
 use Filament\Forms\Components\SpatieMediaLibraryFileUpload;
 use Illuminate\Support\Str;
 
-class ProfilResource extends Resource
+class PageResource extends Resource
 {
-    protected static ?string $model = Profil::class;
+    protected static ?string $model = Page::class;
 
-    protected static ?string $navigationIcon = 'heroicon-o-document-text';
+    protected static ?string $navigationIcon = 'heroicon-o-document-duplicate';
 
     protected static ?string $navigationGroup = 'Sites';
 
-    protected static ?string $navigationLabel = 'Profil';
+    protected static ?string $navigationLabel = 'Halaman Dinamis';
 
-    protected static ?string $modelLabel = 'Profil';
+    protected static ?string $modelLabel = 'Halaman';
 
-    protected static ?string $pluralModelLabel = 'Profil';
+    protected static ?string $pluralModelLabel = 'Halaman';
 
     protected static ?int $navigationSort = 2;
 
@@ -37,6 +37,18 @@ class ProfilResource extends Resource
             ->schema([
                 Forms\Components\Section::make('Informasi Halaman')
                     ->schema([
+                        Forms\Components\Select::make('type')
+                            ->label('Tipe Halaman')
+                            ->options([
+                                'page' => 'Page',
+                                'profil' => 'Profil',
+                                'layanan' => 'Layanan',
+                                'berita' => 'Berita',
+                            ])
+                            ->required()
+                            ->default('page')
+                            ->helperText('Pilih tipe halaman untuk kategorisasi'),
+
                         Forms\Components\Select::make('parent_id')
                             ->label('Halaman Induk')
                             ->relationship('parent', 'title')
@@ -58,7 +70,7 @@ class ProfilResource extends Resource
                             ->required()
                             ->unique(ignoreRecord: true)
                             ->maxLength(255)
-                            ->helperText('URL halaman: /profil/{slug}'),
+                            ->helperText('/{parent-slug}/{slug} or /{slug} if no parent'),
 
                         Forms\Components\RichEditor::make('content')
                             ->label('Konten')
@@ -141,11 +153,23 @@ class ProfilResource extends Resource
                     ->sortable()
                     ->width(80),
 
+                Tables\Columns\TextColumn::make('type')
+                    ->label('Tipe')
+                    ->badge()
+                    ->colors([
+                        'primary' => 'page',
+                        'success' => 'profil',
+                        'warning' => 'layanan',
+                        'info' => 'berita',
+                    ])
+                    ->sortable()
+                    ->searchable(),
+
                 Tables\Columns\TextColumn::make('title')
                     ->label('Judul')
                     ->searchable()
                     ->sortable()
-                    ->description(fn (Profil $record): string => "/profil/{$record->slug}"),
+                    ->description(fn (Page $record): string => $record->full_slug),
 
                 Tables\Columns\TextColumn::make('parent.title')
                     ->label('Halaman Induk')
@@ -180,11 +204,25 @@ class ProfilResource extends Resource
             ->filters([
                 Tables\Filters\TrashedFilter::make(),
 
+                Tables\Filters\SelectFilter::make('type')
+                    ->label('Tipe')
+                    ->options([
+                        'page' => 'Page',
+                        'profil' => 'Profil',
+                        'layanan' => 'Layanan',
+                        'berita' => 'Berita',
+                    ]),
+
                 Tables\Filters\TernaryFilter::make('is_active')
                     ->label('Status')
                     ->placeholder('Semua halaman')
                     ->trueLabel('Hanya aktif')
                     ->falseLabel('Hanya tidak aktif'),
+
+                Tables\Filters\Filter::make('parent')
+                    ->label('Hanya Parent')
+                    ->toggle()
+                    ->query(fn (Builder $query): Builder => $query->whereNull('parent_id')),
             ])
             ->actions([
                 Tables\Actions\ActionGroup::make([
@@ -215,9 +253,9 @@ class ProfilResource extends Resource
     public static function getPages(): array
     {
         return [
-            'index' => Pages\ListProfils::route('/'),
-            'create' => Pages\CreateProfil::route('/create'),
-            'edit' => Pages\EditProfil::route('/{record}/edit'),
+            'index' => Pages\ListPages::route('/'),
+            'create' => Pages\CreatePage::route('/create'),
+            'edit' => Pages\EditPage::route('/{record}/edit'),
         ];
     }
 

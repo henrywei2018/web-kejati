@@ -8,7 +8,7 @@ use Spatie\MediaLibrary\HasMedia;
 use Spatie\MediaLibrary\InteractsWithMedia;
 use Illuminate\Support\Str;
 
-class Profil extends Model implements HasMedia
+class Page extends Model implements HasMedia
 {
     use SoftDeletes, InteractsWithMedia;
 
@@ -17,6 +17,7 @@ class Profil extends Model implements HasMedia
         'slug',
         'title',
         'content',
+        'type',
         'is_active',
         'order',
         'meta',
@@ -31,15 +32,15 @@ class Profil extends Model implements HasMedia
     {
         parent::boot();
 
-        static::creating(function ($profil) {
-            if (empty($profil->slug)) {
-                $profil->slug = Str::slug($profil->title);
+        static::creating(function ($page) {
+            if (empty($page->slug)) {
+                $page->slug = Str::slug($page->title);
             }
         });
 
-        static::updating(function ($profil) {
-            if ($profil->isDirty('title') && empty($profil->slug)) {
-                $profil->slug = Str::slug($profil->title);
+        static::updating(function ($page) {
+            if ($page->isDirty('title') && empty($page->slug)) {
+                $page->slug = Str::slug($page->title);
             }
         });
     }
@@ -52,6 +53,23 @@ class Profil extends Model implements HasMedia
         $this->addMediaCollection('gallery');
     }
 
+    // Relationships
+    public function parent()
+    {
+        return $this->belongsTo(Page::class, 'parent_id');
+    }
+
+    public function children()
+    {
+        return $this->hasMany(Page::class, 'parent_id')->ordered();
+    }
+
+    public function activeChildren()
+    {
+        return $this->hasMany(Page::class, 'parent_id')->active()->ordered();
+    }
+
+    // Scopes
     public function scopeActive($query)
     {
         return $query->where('is_active', true);
@@ -67,19 +85,26 @@ class Profil extends Model implements HasMedia
         return $query->whereNull('parent_id');
     }
 
-    public function parent()
+    public function scopeOfType($query, string $type)
     {
-        return $this->belongsTo(Profil::class, 'parent_id');
+        return $query->where('type', $type);
     }
 
-    public function children()
+    // Helper Methods
+    public function getFullSlugAttribute(): string
     {
-        return $this->hasMany(Profil::class, 'parent_id')->ordered();
+        if ($this->parent) {
+            return $this->parent->slug . '/' . $this->slug;
+        }
+        return $this->slug;
     }
 
-    public function activeChildren()
+    public function getUrlAttribute(): string
     {
-        return $this->hasMany(Profil::class, 'parent_id')->active()->ordered();
+        if ($this->parent) {
+            return url($this->parent->slug . '/' . $this->slug);
+        }
+        return url($this->slug);
     }
 
     public function getRouteKeyName()
