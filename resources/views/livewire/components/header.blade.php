@@ -53,14 +53,14 @@
     <div class="header-body border-top-0 h-auto bg-white shadow-sm">
         <div class="container-fluid px-3 px-lg-5 p-static">
             <div class="row align-items-center py-3">
-                <div class="col-auto col-lg-2 col-xxl-3 me-auto me-lg-0">
+                <div class="col-auto col-lg-2 col-xxl-2 me-auto me-lg-0">
                     <div class="header-logo" data-clone-element-to="#offCanvasLogo">
                         <a href="demo-accounting-1.html">
                             <img alt="Porto" width="131" height="27" src="img/demos/accounting-1/logo.png">
                         </a>
                     </div>
                 </div>
-                <div class="col-auto col-lg-8 col-xxl-6 justify-content-lg-center">
+                <div class="col-auto col-lg-8 col-xxl-8 justify-content-lg-center">
                     <div class="header-nav header-nav-links justify-content-lg-center">
                         <div
                             class="header-nav-main header-nav-main-text-capitalize header-nav-main-arrows header-nav-main-effect-2">
@@ -131,9 +131,9 @@
                                 123 4567</a>
                         </div> --}}
                         <a href="demo-accounting-1-contact.html"
-                            class="btn btn-rounded btn-secondary box-shadow-7 font-weight-medium px-3 py-2 text-2-5 btn-swap-1 ms-3 d-none d-md-flex"
+                            class="btn btn-rounded btn-secondary box-shadow-7 font-weight-medium px-2 py-1 text-2 btn-swap-1 ms-2 d-none d-lg-flex"
                             data-clone-element="1">
-                            <span>Login <i class="fa-solid fa-arrow-right ms-2"></i></span>
+                            <span>Login <i class="fa-solid fa-arrow-right ms-1"></i></span>
                         </a>
                         <button class="btn header-btn-collapse-nav rounded-pill" data-bs-toggle="offcanvas"
                             href="#offcanvasMain" role="button" aria-controls="offcanvasMain">
@@ -191,17 +191,18 @@
         overflow: visible !important;
     }
 
-    /* Main Navigation - Clean & Professional */
+    /* Main Navigation - Compact & Professional */
     .header-nav-main .nav-link {
         color: #263238 !important;
         font-weight: 500;
-        font-size: 15px;
-        padding: 12px 20px !important;
+        font-size: 13.5px;
+        padding: 10px 14px !important;
         border-radius: 0 !important;
         transition: all 0.3s ease;
         position: relative;
         background: transparent !important;
-        border-bottom: 3px solid transparent;
+        border-bottom: 2px solid transparent;
+        white-space: nowrap;
     }
 
     /* Remove default nav-pills active state */
@@ -235,14 +236,15 @@
         border-bottom-color: #FDD835 !important;
     }
 
-    /* Dropdown Menu - Clean Professional Style */
+    /* Dropdown Menu - Compact Professional Style */
     .dropdown-menu {
         border: 1px solid rgba(27, 94, 32, 0.1) !important;
-        box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12) !important;
-        border-radius: 8px !important;
-        padding: 8px 12px 12px 12px !important; /* Top padding lebih kecil untuk visual */
-        margin-top: 4px !important; /* Small gap untuk visual clarity */
-        min-width: 240px;
+        box-shadow: 0 6px 20px rgba(0, 0, 0, 0.12) !important;
+        border-radius: 6px !important;
+        padding: 6px 8px 8px 8px !important;
+        margin-top: 2px !important;
+        min-width: 200px;
+        max-width: 280px;
     }
 
     /* Extend dropdown hover area */
@@ -274,14 +276,16 @@
     }
 
     .dropdown-menu .dropdown-item {
-        border-radius: 6px !important;
-        padding: 10px 16px !important;
-        font-size: 14px !important;
+        border-radius: 4px !important;
+        padding: 7px 12px !important;
+        font-size: 13px !important;
         color: #263238 !important;
         transition: all 0.2s ease !important;
-        margin-bottom: 4px;
+        margin-bottom: 2px;
         font-weight: 500;
         background: transparent !important;
+        white-space: normal;
+        line-height: 1.4;
     }
 
     /* Dropdown Item Hover - Clean */
@@ -291,25 +295,25 @@
         transform: translateX(2px) !important;
     }
 
-    /* Active Dropdown Item - Subtle indicator (untuk visual saja, active di parent) */
+    /* Active Dropdown Item - Compact indicator */
     .dropdown-menu .dropdown-item.active {
         background: rgba(212, 175, 55, 0.1) !important;
         color: #1B5E20 !important;
         font-weight: 600;
         position: relative;
-        padding-left: 20px !important;
+        padding-left: 16px !important;
     }
 
     .dropdown-menu .dropdown-item.active::before {
         content: '';
         position: absolute;
-        left: 8px;
+        left: 6px;
         top: 50%;
         transform: translateY(-50%);
-        width: 4px;
-        height: 20px;
+        width: 3px;
+        height: 16px;
         background: #D4AF37;
-        border-radius: 2px;
+        border-radius: 1.5px;
     }
 
     .dropdown-menu .dropdown-item.active:hover {
@@ -317,14 +321,38 @@
         transform: translateX(2px) !important;
     }
 
-    /* Dropdown Arrow Animation */
+    /* Dropdown Arrow Animation - Compact */
     .dropdown-toggle::after {
         transition: transform 0.3s ease;
-        margin-left: 8px;
+        margin-left: 6px;
+        font-size: 0.7em;
     }
 
     .dropdown.show .dropdown-toggle::after {
         transform: rotate(180deg);
+    }
+
+    /* Multi-column dropdown for many items */
+    .dropdown-menu.dropdown-menu-large {
+        min-width: 400px;
+        max-width: 600px;
+    }
+
+    @media (min-width: 992px) {
+        /* Auto multi-column if more than 8 items */
+        .dropdown-menu:has(> li:nth-child(9)) {
+            column-count: 2;
+            column-gap: 16px;
+            min-width: 380px;
+            max-width: 500px;
+            padding: 8px 12px 12px 12px !important;
+        }
+
+        .dropdown-menu:has(> li:nth-child(9)) > li {
+            break-inside: avoid;
+            page-break-inside: avoid;
+            -webkit-column-break-inside: avoid;
+        }
     }
 
     /* Nested Dropdown (Submenu) Support */
@@ -400,21 +428,22 @@
         border-color: #1B5E20;
     }
 
-    /* CTA Button - Gold Authority */
+    /* CTA Button - Compact Gold Authority */
     .btn-rounded.btn-secondary {
         background: linear-gradient(135deg, #D4AF37 0%, #FDD835 100%) !important;
         border: none !important;
         color: #263238 !important;
         font-weight: 600 !important;
-        padding: 10px 24px !important;
+        font-size: 13px !important;
+        padding: 6px 16px !important;
         border-radius: 50px !important;
         transition: all 0.3s ease !important;
-        box-shadow: 0 4px 12px rgba(212, 175, 55, 0.4) !important;
+        box-shadow: 0 3px 10px rgba(212, 175, 55, 0.35) !important;
     }
 
     .btn-rounded.btn-secondary:hover {
         transform: translateY(-2px) !important;
-        box-shadow: 0 6px 20px rgba(212, 175, 55, 0.5) !important;
+        box-shadow: 0 5px 16px rgba(212, 175, 55, 0.45) !important;
         background: #FDD835 !important;
     }
 
@@ -424,7 +453,38 @@
         -moz-osx-font-smoothing: grayscale;
     }
 
+    /* Compact Navigation Container */
+    .header-nav-main .nav-pills {
+        gap: 0;
+        margin: 0;
+    }
+
+    .header-nav-main .nav-pills > li {
+        margin: 0;
+    }
+
+    /* Reduce header body padding for more nav space */
+    .header-body .py-3 {
+        padding-top: 0.75rem !important;
+        padding-bottom: 0.75rem !important;
+    }
+
     /* ========== Responsive Styles ========== */
+    @media (min-width: 1400px) {
+        /* More breathing room on XL screens */
+        .header-nav-main .nav-link {
+            padding: 10px 16px !important;
+        }
+    }
+
+    @media (min-width: 1200px) and (max-width: 1399px) {
+        /* Tight spacing on large screens */
+        .header-nav-main .nav-link {
+            font-size: 13px;
+            padding: 10px 12px !important;
+        }
+    }
+
     @media (max-width: 991px) {
         /* Hide top bar on mobile */
         .header-top {

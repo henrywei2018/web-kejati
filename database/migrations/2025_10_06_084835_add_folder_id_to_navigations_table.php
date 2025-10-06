@@ -11,8 +11,8 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::table('profils', function (Blueprint $table) {
-            $table->foreignId('parent_id')->nullable()->after('id')->constrained('profils')->onDelete('cascade');
+        Schema::table('navigations', function (Blueprint $table) {
+            $table->foreignId('folder_id')->nullable()->after('page_id')->constrained('folders')->nullOnDelete();
         });
     }
 
@@ -21,9 +21,9 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::table('profils', function (Blueprint $table) {
-            $table->dropForeign(['parent_id']);
-            $table->dropColumn('parent_id');
+        Schema::table('navigations', function (Blueprint $table) {
+            $table->dropForeign(['folder_id']);
+            $table->dropColumn('folder_id');
         });
     }
 };

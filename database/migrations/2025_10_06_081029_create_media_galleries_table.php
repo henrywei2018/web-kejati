@@ -11,16 +11,21 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('profils', function (Blueprint $table) {
+        Schema::create('media_galleries', function (Blueprint $table) {
             $table->id();
-            $table->string('slug')->unique();
             $table->string('title');
-            $table->longText('content')->nullable();
-            $table->boolean('is_active')->default(true);
+            $table->string('slug')->unique();
+            $table->text('description')->nullable();
+            $table->string('category'); // pengumuman, infografis, kegiatan
+            $table->date('event_date')->nullable(); // Tanggal kegiatan/pengumuman
             $table->integer('order')->default(0);
+            $table->boolean('is_active')->default(true);
             $table->json('meta')->nullable();
             $table->timestamps();
             $table->softDeletes();
+
+            $table->index(['category', 'is_active']);
+            $table->index('event_date');
         });
     }
 
@@ -29,6 +34,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('profils');
+        Schema::dropIfExists('media_galleries');
     }
 };

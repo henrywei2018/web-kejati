@@ -50,6 +50,13 @@ class Page extends Model implements HasMedia
         $this->addMediaCollection('featured_image')
             ->singleFile();
 
+        $this->addMediaCollection('header_image')
+            ->singleFile();
+
+        $this->addMediaCollection('header_icon')
+            ->singleFile()
+            ->acceptsMimeTypes(['image/svg+xml']);
+
         $this->addMediaCollection('gallery');
     }
 
@@ -110,5 +117,21 @@ class Page extends Model implements HasMedia
     public function getRouteKeyName()
     {
         return 'slug';
+    }
+
+    // Media Helper Methods
+    public function getHeaderImageUrlAttribute(): ?string
+    {
+        return $this->getFirstMediaUrl('header_image') ?: null;
+    }
+
+    public function getHeaderIconUrlAttribute(): ?string
+    {
+        return $this->getFirstMediaUrl('header_icon') ?: null;
+    }
+
+    public function getFeaturedImageUrlAttribute(): ?string
+    {
+        return $this->getFirstMediaUrl('featured_image') ?: null;
     }
 }

@@ -73,15 +73,11 @@
         @livewire('components.header-details', [
             'title' => $page->title,
             'badge' => ucfirst($page->type),
-            'breadcrumbs' => [
-                ['label' => 'Beranda', 'url' => route('home')],
-                ['label' => $page->parent ? $page->parent->title : $page->title, 'url' => $page->parent ? url($page->parent->slug) : '#'],
-                ['label' => $page->parent ? $page->title : '']
-            ],
-            'image' => asset('frontend/img/waves-2.svg'),
+            'image' => $page->header_image_url ?: $page->featured_image_url ?: asset('frontend/img/accounting-1/generic/mask-image-4.png'),
+            'headerIcon' => $page->header_icon_url,
             'backgroundClass' => 'bg-primary',
-            'titleClass' => 'text-secondary text-9 text-lg-12 font-weight-bold line-height-1 mb-2',
-            'badgeClass' => 'badge bg-quaternary text-light rounded-pill text-uppercase font-weight-bold text-2-5 px-4 py-2 mb-3'
+            'titleClass' => 'text-dark text-9 text-lg-12 font-weight-semibold line-height-1 mb-2',
+            'badgeClass' => 'badge bg-color-dark-rgba-10 text-light rounded-pill text-uppercase font-weight-semibold text-2-5 px-3 py-2 px-4 mb-3'
         ])
 
         <div class="container pb-5 pt-lg-5 mt-5">
