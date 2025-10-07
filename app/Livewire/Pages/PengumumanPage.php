@@ -6,19 +6,26 @@ use TomatoPHP\FilamentMediaManager\Models\Folder;
 use Livewire\Component;
 use Livewire\WithPagination;
 
-class FolderGalleryPage extends Component
+class PengumumanPage extends Component
 {
     use WithPagination;
 
-    public Folder $folder;
     public ?int $detailMediaId = null;
+    public string $search = '';
+    public string $sortBy = 'terbaru'; // terbaru, terlama, judul
 
-    public function mount($folder)
+    protected $folderId = 3; // Folder ID untuk Pengumuman
+
+    protected $queryString = ['search', 'sortBy'];
+
+    public function updatingSearch()
     {
-        // Load folder dengan media
-        $this->folder = Folder::withoutGlobalScope('user')
-            ->where('is_public', true)
-            ->findOrFail($folder);
+        $this->resetPage();
+    }
+
+    public function updatingSortBy()
+    {
+        $this->resetPage();
     }
 
     public function showMediaDetail(int $mediaId): void
@@ -58,17 +65,37 @@ class FolderGalleryPage extends Component
 
     public function render()
     {
+        // Load folder Pengumuman
+        $folder = Folder::withoutGlobalScope('user')->findOrFail($this->folderId);
+
         // Get all media from this folder
-        $mediaItems = $this->folder->getMedia($this->folder->collection);
+        $mediaItems = collect($folder->getMedia($folder->collection));
+
+        // Apply search filter
+        if ($this->search) {
+            $mediaItems = $mediaItems->filter(function ($media) {
+                $title = $media->custom_properties['title'] ?? $media->name;
+                $description = $media->custom_properties['description'] ?? '';
+
+                return stripos($title, $this->search) !== false ||
+                       stripos($description, $this->search) !== false;
+            });
+        }
+
+        // Apply sorting
+        $mediaItems = match($this->sortBy) {
+            'terlama' => $mediaItems->sortBy('created_at'),
+            'judul' => $mediaItems->sortBy(fn($media) => $media->custom_properties['title'] ?? $media->name),
+            default => $mediaItems->sortByDesc('created_at'), // terbaru
+        };
 
         // Paginate manually since it's a collection
-        $perPage = 24;
+        $perPage = 10;
         $currentPage = $this->getPage();
-        $mediaCollection = collect($mediaItems);
 
         $paginatedMedia = new \Illuminate\Pagination\LengthAwarePaginator(
-            $mediaCollection->forPage($currentPage, $perPage),
-            $mediaCollection->count(),
+            $mediaItems->forPage($currentPage, $perPage)->values(),
+            $mediaItems->count(),
             $perPage,
             $currentPage,
             ['path' => request()->url()]
@@ -77,16 +104,17 @@ class FolderGalleryPage extends Component
         // Get detail media if selected
         $detailMedia = null;
         if ($this->detailMediaId) {
-            $detailMedia = $mediaItems->firstWhere('id', $this->detailMediaId);
+            $detailMedia = $folder->getMedia($folder->collection)->firstWhere('id', $this->detailMediaId);
         }
 
-        return view('livewire.pages.folder-gallery-page', [
+        return view('livewire.pages.pengumuman-page', [
+            'folder' => $folder,
             'mediaItems' => $paginatedMedia,
             'detailMedia' => $detailMedia,
         ])->layout('layouts.main', [
-            'title' => $this->folder->name . ' - Galeri Media',
-            'metaDescription' => $this->folder->description ?? 'Galeri ' . $this->folder->name . ' - Kejaksaan Tinggi Kalimantan Utara',
-            'metaKeywords' => $this->folder->name . ', galeri media, kejaksaan tinggi kaltara'
+            'title' => 'Pengumuman - Kejaksaan Tinggi Kalimantan Utara',
+            'metaDescription' => 'Daftar pengumuman resmi dari Kejaksaan Tinggi Kalimantan Utara',
+            'metaKeywords' => 'pengumuman, informasi, kejaksaan tinggi kaltara'
         ]);
     }
 }

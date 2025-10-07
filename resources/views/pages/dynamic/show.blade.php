@@ -80,7 +80,7 @@
             'badgeClass' => 'badge bg-color-dark-rgba-10 text-light rounded-pill text-uppercase font-weight-semibold text-2-5 px-3 py-2 px-4 mb-3'
         ])
 
-        <div class="container pb-5 pt-lg-5 mt-5">
+        <div class="pb-5 pt-lg-5 mt-5">
             <div class="row">
                 <div class="col-lg-8 order-2 order-lg-1">
                     @if($page->getFirstMediaUrl('featured_image'))

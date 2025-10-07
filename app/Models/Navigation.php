@@ -15,7 +15,6 @@ class Navigation extends Model
         'type',
         'url',
         'page_id',
-        'folder_id',
         'icon',
         'target',
         'order',
@@ -49,11 +48,6 @@ class Navigation extends Model
         return $this->belongsTo(Page::class);
     }
 
-    public function folder()
-    {
-        return $this->belongsTo(\TomatoPHP\FilamentMediaManager\Models\Folder::class);
-    }
-
     // Scopes
     public function scopeActive($query)
     {
@@ -81,11 +75,6 @@ class Navigation extends Model
         // If type is page, get URL from Page model
         if ($this->type === 'page' && $this->page) {
             return $this->page->url;
-        }
-
-        // If type is folder, generate gallery URL
-        if ($this->type === 'folder' && $this->folder) {
-            return route('gallery.folder', ['folder' => $this->folder_id]);
         }
 
         // Return custom URL

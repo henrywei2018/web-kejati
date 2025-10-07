@@ -38,7 +38,6 @@ class NavigationResource extends Resource
                             ->label('Tipe Menu')
                             ->options([
                                 'page' => 'Link ke Halaman',
-                                'folder' => 'Link ke Folder Media',
                                 'custom' => 'Link Custom',
                                 'external' => 'Link External',
                                 'dropdown' => 'Dropdown (Parent Menu)',
@@ -75,23 +74,12 @@ class NavigationResource extends Resource
                             ->helperText('Label dan URL akan otomatis dari halaman')
                             ->visible(fn (Forms\Get $get) => $get('type') === 'page'),
 
-                        Forms\Components\Select::make('folder_id')
-                            ->label('Pilih Folder Media')
-                            ->relationship('folder', 'name', fn ($query) => $query->where('is_public', true))
-                            ->searchable()
-                            ->preload()
-                            ->required()
-                            ->native(false)
-                            ->helperText('Pilih folder media yang akan ditampilkan')
-                            ->visible(fn (Forms\Get $get) => $get('type') === 'folder')
-                            ->getOptionLabelFromRecordUsing(fn ($record) => $record->name . ' (' . $record->collection . ')'),
-
                         Forms\Components\TextInput::make('url')
                             ->label('URL')
                             ->maxLength(255)
                             ->helperText('Contoh: /contact atau https://example.com')
                             ->required(fn (Forms\Get $get) => in_array($get('type'), ['custom', 'external']))
-                            ->hidden(fn (Forms\Get $get) => in_array($get('type'), ['page', 'folder', 'dropdown'])),
+                            ->hidden(fn (Forms\Get $get) => in_array($get('type'), ['page', 'dropdown'])),
 
                         Forms\Components\Select::make('target')
                             ->label('Target Link')
