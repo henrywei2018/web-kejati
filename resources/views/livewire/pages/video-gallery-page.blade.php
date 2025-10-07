@@ -338,107 +338,79 @@
         </div>
     </div>
 
-    {{-- Video Modal --}}
+    {{-- Video Modal - Minimalist & Clean --}}
     @if($detailMedia)
         @php
             $videoUrl = $detailMedia->custom_properties['video_url'] ?? $detailMedia->getUrl();
             $videoId = $this->getVideoId($videoUrl);
         @endphp
-        <div class="modal fade show" style="display: block; background: rgba(0,0,0,0.8);" tabindex="-1" wire:click.self="closeMediaDetail">
+        <div class="modal fade show" style="display: block; background: rgba(0, 0, 0, 0.85);" tabindex="-1" wire:click.self="closeMediaDetail">
             <div class="modal-dialog modal-xl modal-dialog-centered">
-                <div class="modal-content border-0 shadow-lg">
-                    <div class="modal-header bg-light border-bottom-0">
-                        <div>
-                            <h5 class="modal-title fw-bold mb-1">{{ $detailMedia->custom_properties['title'] ?? $detailMedia->name }}</h5>
+                <div class="modal-content border-0 shadow-2xl" style="background: #ffffff; border-radius: 16px; overflow: hidden;">
+                    {{-- Modal Header --}}
+                    <div class="modal-header border-0 px-4 pt-4 pb-3" style="background: #ffffff;">
+                        <div class="flex-grow-1">
+                            <h5 class="modal-title fw-bold mb-1 text-dark">{{ $detailMedia->custom_properties['title'] ?? $detailMedia->name }}</h5>
                             <small class="text-muted">
                                 <i class="far fa-calendar me-1"></i>
-                                {{ $detailMedia->created_at->format('d F Y, H:i') }} WIB
+                                {{ $detailMedia->created_at->format('d F Y') }}
                             </small>
                         </div>
                         <button type="button" class="btn-close" wire:click="closeMediaDetail"></button>
                     </div>
+
                     <div class="modal-body p-0">
                         {{-- Video Player --}}
-                        @if($videoId)
-                            {{-- YouTube Video --}}
-                            <div class="ratio ratio-16x9">
-                                <iframe
-                                    src="https://www.youtube.com/embed/{{ $videoId }}?autoplay=1"
-                                    title="{{ $detailMedia->custom_properties['title'] ?? $detailMedia->name }}"
-                                    frameborder="0"
-                                    allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-                                    allowfullscreen>
-                                </iframe>
-                            </div>
-                        @elseif(str_starts_with($detailMedia->mime_type, 'video/'))
-                            {{-- Direct Video File --}}
-                            <video controls class="w-100" style="max-height: 70vh;">
-                                <source src="{{ $detailMedia->getUrl() }}" type="{{ $detailMedia->mime_type }}">
-                                Browser Anda tidak mendukung pemutaran video.
-                            </video>
-                        @else
-                            {{-- Fallback --}}
-                            <div class="text-center py-5 bg-light">
-                                <i class="fas fa-video fa-5x text-danger mb-3"></i>
-                                <h4>Video tidak dapat diputar</h4>
-                                <p class="text-muted">Format video tidak didukung atau URL tidak valid</p>
-                            </div>
-                        @endif
-
-                        {{-- Video Info --}}
-                        <div class="p-4">
-                            @if(isset($detailMedia->custom_properties['description']))
-                                <div class="mb-3">
-                                    <h6 class="fw-bold mb-2">Deskripsi:</h6>
-                                    <p class="text-muted mb-0">{{ $detailMedia->custom_properties['description'] }}</p>
+                        <div style="background: #05AC69;">
+                            @if($videoId)
+                                {{-- YouTube Video --}}
+                                <div class="ratio ratio-16x9">
+                                    <iframe
+                                        src="https://www.youtube.com/embed/{{ $videoId }}?autoplay=1"
+                                        title="{{ $detailMedia->custom_properties['title'] ?? $detailMedia->name }}"
+                                        frameborder="0"
+                                        allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                                        allowfullscreen>
+                                    </iframe>
+                                </div>
+                            @elseif(str_starts_with($detailMedia->mime_type, 'video/'))
+                                {{-- Direct Video File --}}
+                                <video controls class="w-100" style="max-height: 70vh; background: #000;">
+                                    <source src="{{ $detailMedia->getUrl() }}" type="{{ $detailMedia->mime_type }}">
+                                    Browser Anda tidak mendukung pemutaran video.
+                                </video>
+                            @else
+                                {{-- Fallback --}}
+                                <div class="text-center py-5">
+                                    <i class="fas fa-video fa-5x text-white opacity-50 mb-3"></i>
+                                    <h5 class="text-white">Video tidak dapat diputar</h5>
+                                    <p class="text-white opacity-75">Format video tidak didukung atau URL tidak valid</p>
                                 </div>
                             @endif
-
-                            {{-- Video Details --}}
-                            <div class="card bg-light border-0">
-                                <div class="card-body">
-                                    <h6 class="fw-bold mb-3">Informasi Video:</h6>
-                                    <div class="row g-3">
-                                        <div class="col-md-6">
-                                            <small class="text-muted d-block">Judul</small>
-                                            <strong class="text-dark">{{ $detailMedia->custom_properties['title'] ?? $detailMedia->name }}</strong>
-                                        </div>
-                                        @if(isset($detailMedia->custom_properties['duration']))
-                                            <div class="col-md-6">
-                                                <small class="text-muted d-block">Durasi</small>
-                                                <strong class="text-dark">{{ $this->formatDuration($detailMedia->custom_properties['duration']) }}</strong>
-                                            </div>
-                                        @endif
-                                        @if(isset($detailMedia->custom_properties['category']))
-                                            <div class="col-md-6">
-                                                <small class="text-muted d-block">Kategori</small>
-                                                <strong class="text-dark">{{ $detailMedia->custom_properties['category'] }}</strong>
-                                            </div>
-                                        @endif
-                                        <div class="col-md-6">
-                                            <small class="text-muted d-block">Tanggal Upload</small>
-                                            <strong class="text-dark">{{ $detailMedia->created_at->format('d F Y') }}</strong>
-                                        </div>
-                                        @if(isset($detailMedia->custom_properties['views']))
-                                            <div class="col-md-6">
-                                                <small class="text-muted d-block">Jumlah Tayangan</small>
-                                                <strong class="text-dark">{{ number_format($detailMedia->custom_properties['views']) }}</strong>
-                                            </div>
-                                        @endif
-                                    </div>
-                                </div>
-                            </div>
                         </div>
+
+                        {{-- Description Section --}}
+                        @if(isset($detailMedia->custom_properties['description']))
+                            <div class="px-4 pt-4 pb-3">
+                                <p class="text-secondary mb-0 lh-lg" style="font-size: 0.95rem;">
+                                    {{ $detailMedia->custom_properties['description'] }}
+                                </p>
+                            </div>
+                        @endif
                     </div>
-                    <div class="modal-footer border-top-0 bg-light">
+
+                    {{-- Modal Footer --}}
+                    <div class="modal-footer border-0 px-4 pb-4 pt-2" style="background: #ffffff;">
+                        <button type="button" class="btn btn-light px-4 py-2" wire:click="closeMediaDetail">
+                            <i class="fas fa-times me-2"></i>
+                            Tutup
+                        </button>
                         @if($videoUrl)
-                            <a href="{{ $videoUrl }}" target="_blank" class="btn btn-danger">
-                                <i class="fas fa-external-link-alt me-2"></i> Buka di Tab Baru
+                            <a href="{{ $videoUrl }}" target="_blank" class="btn px-4 py-2 text-white" style="background: #05AC69;">
+                                <i class="fas fa-external-link-alt me-2"></i>
+                                Buka di Tab Baru
                             </a>
                         @endif
-                        <button type="button" class="btn btn-secondary" wire:click="closeMediaDetail">
-                            <i class="fas fa-times me-2"></i> Tutup
-                        </button>
                     </div>
                 </div>
             </div>
