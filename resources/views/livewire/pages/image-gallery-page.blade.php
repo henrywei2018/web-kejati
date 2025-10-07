@@ -261,153 +261,55 @@
         </div>
     </div>
 
-    {{-- Image Detail Modal - Modern & Elegant --}}
+    {{-- Image Detail Modal - Minimalist & Clean --}}
     @if($detailMedia)
-        <div class="modal fade show modal-modern" style="display: block; background: linear-gradient(135deg, rgba(30, 30, 60, 0.95), rgba(15, 15, 30, 0.98));" tabindex="-1" wire:click.self="closeMediaDetail">
+        <div class="modal fade show modal-modern" style="display: block; background: rgba(0, 0, 0, 0.85);" tabindex="-1" wire:click.self="closeMediaDetail">
             <div class="modal-dialog modal-xl modal-dialog-centered">
-                <div class="modal-content border-0 shadow-2xl" style="background: linear-gradient(180deg, #ffffff 0%, #f8f9fa 100%); border-radius: 20px; overflow: hidden;">
+                <div class="modal-content border-0 shadow-2xl" style="background: #ffffff; border-radius: 16px; overflow: hidden;">
                     {{-- Modal Header --}}
-                    <div class="modal-header border-0 px-4 pt-4 pb-3" style="background: transparent;">
+                    <div class="modal-header border-0 px-4 pt-4 pb-3" style="background: #ffffff;">
                         <div class="flex-grow-1">
-                            <h4 class="modal-title fw-bold mb-1 text-dark">{{ $detailMedia->custom_properties['title'] ?? $detailMedia->name }}</h4>
-                            <div class="d-flex align-items-center gap-3 text-muted small">
-                                <span>
-                                    <i class="far fa-calendar me-1"></i>
-                                    {{ $detailMedia->created_at->format('d F Y') }}
-                                </span>
-                                <span>
-                                    <i class="far fa-clock me-1"></i>
-                                    {{ $detailMedia->created_at->format('H:i') }} WIB
-                                </span>
-                            </div>
+                            <h5 class="modal-title fw-bold mb-1 text-dark">{{ $detailMedia->custom_properties['title'] ?? $detailMedia->name }}</h5>
+                            <small class="text-muted">
+                                <i class="far fa-calendar me-1"></i>
+                                {{ $detailMedia->created_at->format('d F Y') }}
+                            </small>
                         </div>
-                        <button type="button" class="btn-close" wire:click="closeMediaDetail" style="opacity: 0.6;"></button>
+                        <button type="button" class="btn-close" wire:click="closeMediaDetail"></button>
                     </div>
 
                     <div class="modal-body p-0">
                         {{-- Image Preview Section --}}
-                        <div class="position-relative" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); padding: 3rem 2rem;">
+                        <div class="position-relative" style="background: #05AC69; padding: 3rem 2rem;">
                             <div class="text-center">
                                 <img
                                     src="{{ $detailMedia->getUrl() }}"
                                     alt="{{ $detailMedia->name }}"
                                     class="img-fluid shadow-lg"
-                                    style="max-height: 65vh; object-fit: contain; border-radius: 12px; box-shadow: 0 20px 60px rgba(0,0,0,0.3);"
+                                    style="max-height: 70vh; object-fit: contain; border-radius: 8px; box-shadow: 0 10px 40px rgba(0,0,0,0.2);"
                                 >
                             </div>
                         </div>
 
-                        {{-- Image Info Section --}}
-                        <div class="p-4">
-                            {{-- Description --}}
-                            @if(isset($detailMedia->custom_properties['description']))
-                                <div class="mb-4 p-4 rounded-3" style="background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);">
-                                    <div class="d-flex align-items-start gap-3">
-                                        <div class="rounded-circle p-2 d-flex align-items-center justify-content-center" style="background: rgba(255,255,255,0.8); width: 40px; height: 40px;">
-                                            <i class="fas fa-align-left text-primary"></i>
-                                        </div>
-                                        <div class="flex-grow-1">
-                                            <h6 class="fw-bold mb-2 text-dark">Deskripsi</h6>
-                                            <p class="text-secondary mb-0 lh-lg">{{ $detailMedia->custom_properties['description'] }}</p>
-                                        </div>
-                                    </div>
-                                </div>
-                            @endif
-
-                            {{-- Image Details Grid --}}
-                            <div class="row g-3">
-                                <div class="col-md-6">
-                                    <div class="p-3 h-100 rounded-3 border" style="background: #ffffff; border-color: #e9ecef !important;">
-                                        <div class="d-flex align-items-center gap-2 mb-2">
-                                            <div class="rounded-circle d-flex align-items-center justify-content-center" style="background: rgba(220, 53, 69, 0.1); width: 32px; height: 32px;">
-                                                <i class="fas fa-file text-danger small"></i>
-                                            </div>
-                                            <small class="text-muted fw-semibold">Nama File</small>
-                                        </div>
-                                        <p class="mb-0 fw-bold text-dark small">{{ $detailMedia->file_name }}</p>
-                                    </div>
-                                </div>
-
-                                <div class="col-md-6">
-                                    <div class="p-3 h-100 rounded-3 border" style="background: #ffffff; border-color: #e9ecef !important;">
-                                        <div class="d-flex align-items-center gap-2 mb-2">
-                                            <div class="rounded-circle d-flex align-items-center justify-content-center" style="background: rgba(13, 110, 253, 0.1); width: 32px; height: 32px;">
-                                                <i class="fas fa-image text-primary small"></i>
-                                            </div>
-                                            <small class="text-muted fw-semibold">Tipe File</small>
-                                        </div>
-                                        <p class="mb-0 fw-bold text-dark small">{{ strtoupper($detailMedia->extension ?? 'N/A') }}</p>
-                                    </div>
-                                </div>
-
-                                <div class="col-md-6">
-                                    <div class="p-3 h-100 rounded-3 border" style="background: #ffffff; border-color: #e9ecef !important;">
-                                        <div class="d-flex align-items-center gap-2 mb-2">
-                                            <div class="rounded-circle d-flex align-items-center justify-content-center" style="background: rgba(25, 135, 84, 0.1); width: 32px; height: 32px;">
-                                                <i class="fas fa-weight text-success small"></i>
-                                            </div>
-                                            <small class="text-muted fw-semibold">Ukuran File</small>
-                                        </div>
-                                        <p class="mb-0 fw-bold text-dark small">{{ $this->formatBytes($detailMedia->size) }}</p>
-                                    </div>
-                                </div>
-
-                                <div class="col-md-6">
-                                    <div class="p-3 h-100 rounded-3 border" style="background: #ffffff; border-color: #e9ecef !important;">
-                                        <div class="d-flex align-items-center gap-2 mb-2">
-                                            <div class="rounded-circle d-flex align-items-center justify-content-center" style="background: rgba(255, 193, 7, 0.1); width: 32px; height: 32px;">
-                                                <i class="fas fa-expand text-warning small"></i>
-                                            </div>
-                                            <small class="text-muted fw-semibold">Dimensi</small>
-                                        </div>
-                                        <p class="mb-0 fw-bold text-dark small">
-                                            @if(isset($detailMedia->custom_properties['width']) && isset($detailMedia->custom_properties['height']))
-                                                {{ $detailMedia->custom_properties['width'] }} × {{ $detailMedia->custom_properties['height'] }} px
-                                            @else
-                                                -
-                                            @endif
-                                        </p>
-                                    </div>
-                                </div>
-
-                                <div class="col-md-6">
-                                    <div class="p-3 h-100 rounded-3 border" style="background: #ffffff; border-color: #e9ecef !important;">
-                                        <div class="d-flex align-items-center gap-2 mb-2">
-                                            <div class="rounded-circle d-flex align-items-center justify-content-center" style="background: rgba(108, 117, 125, 0.1); width: 32px; height: 32px;">
-                                                <i class="fas fa-calendar-check text-secondary small"></i>
-                                            </div>
-                                            <small class="text-muted fw-semibold">Tanggal Upload</small>
-                                        </div>
-                                        <p class="mb-0 fw-bold text-dark small">{{ $detailMedia->created_at->format('d F Y') }}</p>
-                                    </div>
-                                </div>
-
-                                @if(isset($detailMedia->custom_properties['category']))
-                                    <div class="col-md-6">
-                                        <div class="p-3 h-100 rounded-3 border" style="background: #ffffff; border-color: #e9ecef !important;">
-                                            <div class="d-flex align-items-center gap-2 mb-2">
-                                                <div class="rounded-circle d-flex align-items-center justify-content-center" style="background: rgba(111, 66, 193, 0.1); width: 32px; height: 32px;">
-                                                    <i class="fas fa-tag text-purple small"></i>
-                                                </div>
-                                                <small class="text-muted fw-semibold">Kategori</small>
-                                            </div>
-                                            <p class="mb-0 fw-bold text-dark small">{{ $detailMedia->custom_properties['category'] }}</p>
-                                        </div>
-                                    </div>
-                                @endif
+                        {{-- Description Section --}}
+                        @if(isset($detailMedia->custom_properties['description']))
+                            <div class="px-4 pt-4 pb-3">
+                                <p class="text-secondary mb-0 lh-lg" style="font-size: 0.95rem;">
+                                    {{ $detailMedia->custom_properties['description'] }}
+                                </p>
                             </div>
-                        </div>
+                        @endif
                     </div>
 
                     {{-- Modal Footer --}}
-                    <div class="modal-footer border-0 px-4 pb-4 pt-3" style="background: transparent;">
-                        <button type="button" class="btn btn-light px-4 py-2 rounded-pill" wire:click="closeMediaDetail">
+                    <div class="modal-footer border-0 px-4 pb-4 pt-2" style="background: #ffffff;">
+                        <button type="button" class="btn btn-light px-4 py-2" wire:click="closeMediaDetail">
                             <i class="fas fa-times me-2"></i>
-                            <span>Tutup</span>
+                            Tutup
                         </button>
-                        <a href="{{ $detailMedia->getUrl() }}" download="{{ $detailMedia->file_name }}" class="btn btn-danger px-4 py-2 rounded-pill">
+                        <a href="{{ $detailMedia->getUrl() }}" download="{{ $detailMedia->file_name }}" class="btn px-4 py-2 text-white" style="background: #05AC69;">
                             <i class="fas fa-download me-2"></i>
-                            <span>Download</span>
+                            Download
                         </a>
                     </div>
                 </div>
