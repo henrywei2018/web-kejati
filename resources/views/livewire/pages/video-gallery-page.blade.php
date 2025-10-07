@@ -72,52 +72,50 @@
                             <div class="row g-4">
                                 @foreach($mediaItems as $media)
                                     @php
-                                        $videoUrl = $media->custom_properties['video_url'] ?? $media->getUrl();
-                                        $videoId = $this->getVideoId($videoUrl);
+                                        // Check for YouTube URL
+                                        $videoUrl = $media->custom_properties['video_url'] ?? null;
+                                        $videoId = $videoUrl ? $this->getVideoId($videoUrl) : null;
                                         $isYouTube = !empty($videoId);
-                                        $isLocalVideo = str_starts_with($media->mime_type, 'video/');
-
-                                        // Get thumbnail based on video type
-                                        if ($isYouTube) {
-                                            $thumbnail = "https://img.youtube.com/vi/{$videoId}/maxresdefault.jpg";
-                                            $thumbnailType = 'image';
-                                        } elseif ($media->hasGeneratedConversion('thumb')) {
-                                            $thumbnail = $media->getUrl('thumb');
-                                            $thumbnailType = 'image';
-                                        } elseif (isset($media->custom_properties['thumbnail'])) {
-                                            $thumbnail = $media->custom_properties['thumbnail'];
-                                            $thumbnailType = 'image';
-                                        } else {
-                                            // Use video as thumbnail with poster frame
-                                            $thumbnail = $media->getUrl();
-                                            $thumbnailType = 'video';
-                                        }
+                                        $isVideo = str_starts_with($media->mime_type, 'video/');
                                     @endphp
 
                                     <div class="col-12 col-sm-6 col-md-4">
                                         <div class="video-card rounded overflow-hidden shadow-sm h-100 bg-white">
                                             {{-- Video Thumbnail Container --}}
                                             <div class="position-relative overflow-hidden video-thumbnail" style="height: 200px; background: #000;">
-                                                @if($thumbnailType === 'video')
-                                                    {{-- Use video element as thumbnail for local videos --}}
-                                                    <video
-                                                        class="w-100 h-100"
-                                                        style="object-fit: cover;"
-                                                        muted
-                                                        preload="metadata"
-                                                    >
-                                                        <source src="{{ $thumbnail }}#t=0.5" type="{{ $media->mime_type }}">
-                                                    </video>
-                                                @else
-                                                    {{-- Use image thumbnail --}}
+                                                @if($isYouTube)
+                                                    {{-- YouTube Thumbnail --}}
                                                     <img
-                                                        src="{{ $thumbnail }}"
+                                                        src="https://img.youtube.com/vi/{{ $videoId }}/maxresdefault.jpg"
                                                         alt="{{ $media->custom_properties['title'] ?? $media->name }}"
                                                         class="w-100 h-100"
                                                         style="object-fit: cover;"
                                                         loading="lazy"
-                                                        onerror="this.onerror=null; this.src='data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 400 300%22%3E%3Crect fill=%22%23000%22 width=%22400%22 height=%22300%22/%3E%3Ctext fill=%22%23fff%22 font-family=%22Arial%22 font-size=%2224%22 x=%2250%25%22 y=%2250%25%22 text-anchor=%22middle%22 dy=%22.3em%22%3EVideo%3C/text%3E%3C/svg%3E';"
+                                                        onerror="this.src='https://img.youtube.com/vi/{{ $videoId }}/hqdefault.jpg';"
                                                     >
+                                                @elseif(isset($media->custom_properties['thumbnail']))
+                                                    {{-- Custom Thumbnail --}}
+                                                    <img
+                                                        src="{{ $media->custom_properties['thumbnail'] }}"
+                                                        alt="{{ $media->custom_properties['title'] ?? $media->name }}"
+                                                        class="w-100 h-100"
+                                                        style="object-fit: cover;"
+                                                        loading="lazy"
+                                                    >
+                                                @elseif($isVideo)
+                                                    {{-- Video Element (Filament Approach) --}}
+                                                    <video
+                                                        class="w-100 h-100"
+                                                        style="object-fit: cover; pointer-events: none;"
+                                                        muted
+                                                    >
+                                                        <source src="{{ $media->getUrl() }}" type="{{ $media->mime_type }}">
+                                                    </video>
+                                                @else
+                                                    {{-- Fallback Icon --}}
+                                                    <div class="d-flex align-items-center justify-content-center h-100">
+                                                        <i class="fas fa-video fa-4x text-white opacity-50"></i>
+                                                    </div>
                                                 @endif
                                                 {{-- Play Button Overlay --}}
                                                 <div class="video-overlay position-absolute top-0 start-0 w-100 h-100 d-flex align-items-center justify-content-center">
@@ -295,36 +293,30 @@
                         <div class="list-group list-group-flush">
                             @forelse($latestItems as $item)
                                 @php
-                                    $videoUrl = $item->custom_properties['video_url'] ?? $item->getUrl();
-                                    $videoId = $this->getVideoId($videoUrl);
+                                    $videoUrl = $item->custom_properties['video_url'] ?? null;
+                                    $videoId = $videoUrl ? $this->getVideoId($videoUrl) : null;
                                     $isYouTube = !empty($videoId);
-
-                                    // Get thumbnail for sidebar
-                                    if ($isYouTube) {
-                                        $thumb = "https://img.youtube.com/vi/{$videoId}/default.jpg";
-                                        $thumbType = 'image';
-                                    } elseif ($item->hasGeneratedConversion('thumb')) {
-                                        $thumb = $item->getUrl('thumb');
-                                        $thumbType = 'image';
-                                    } elseif (isset($item->custom_properties['thumbnail'])) {
-                                        $thumb = $item->custom_properties['thumbnail'];
-                                        $thumbType = 'image';
-                                    } else {
-                                        $thumb = $item->getUrl();
-                                        $thumbType = 'video';
-                                    }
+                                    $isVideo = str_starts_with($item->mime_type, 'video/');
                                 @endphp
                                 <div class="list-group-item px-0 border-bottom" wire:click="showMediaDetail({{ $item->id }})" style="cursor: pointer;">
                                     <div class="d-flex align-items-center">
                                         <div class="flex-shrink-0 position-relative" style="width: 60px; height: 40px; background: #000; border-radius: 0.375rem; overflow: hidden;">
-                                            @if($thumbType === 'video')
-                                                <video class="w-100 h-100" style="object-fit: cover;" muted preload="metadata">
-                                                    <source src="{{ $thumb }}#t=0.5" type="{{ $item->mime_type }}">
+                                            @if($isYouTube)
+                                                <img src="https://img.youtube.com/vi/{{ $videoId }}/default.jpg"
+                                                     alt="{{ $item->name }}"
+                                                     class="w-100 h-100" style="object-fit: cover;">
+                                            @elseif(isset($item->custom_properties['thumbnail']))
+                                                <img src="{{ $item->custom_properties['thumbnail'] }}"
+                                                     alt="{{ $item->name }}"
+                                                     class="w-100 h-100" style="object-fit: cover;">
+                                            @elseif($isVideo)
+                                                <video class="w-100 h-100" style="object-fit: cover; pointer-events: none;" muted>
+                                                    <source src="{{ $item->getUrl() }}" type="{{ $item->mime_type }}">
                                                 </video>
                                             @else
-                                                <img src="{{ $thumb }}" alt="{{ $item->name }}"
-                                                     class="w-100 h-100" style="object-fit: cover;"
-                                                     onerror="this.onerror=null; this.style.display='none'; this.parentElement.innerHTML+='<div style=\'position:absolute;top:0;left:0;right:0;bottom:0;display:flex;align-items:center;justify-content:center;color:white;font-size:10px;\'>VIDEO</div>';">
+                                                <div class="d-flex align-items-center justify-content-center h-100">
+                                                    <i class="fas fa-video text-white opacity-50"></i>
+                                                </div>
                                             @endif
                                             <div class="position-absolute top-50 start-50 translate-middle">
                                                 <i class="fas fa-play text-white" style="font-size: 0.75rem; text-shadow: 0 0 3px rgba(0,0,0,0.8);"></i>
