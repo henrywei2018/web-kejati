@@ -106,7 +106,7 @@ class VideoGalleryPage extends Component
         };
 
         // Paginate manually since it's a collection
-        $perPage = 12; // Grid layout works better with 12 items (3x4 or 4x3)
+        $perPage = 6; // Grid layout: 3 columns x 2 rows = 6 items per page
         $currentPage = $this->getPage();
 
         $paginatedMedia = new \Illuminate\Pagination\LengthAwarePaginator(
@@ -114,7 +114,7 @@ class VideoGalleryPage extends Component
             $mediaItems->count(),
             $perPage,
             $currentPage,
-            ['path' => request()->url()]
+            ['path' => request()->url(), 'pageName' => 'page']
         );
 
         // Get detail media if selected

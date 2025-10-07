@@ -54,9 +54,16 @@
                         <div class="mb-4">
                             <div class="d-flex justify-content-between align-items-center">
                                 <h4 class="mb-0">Galeri Video</h4>
-                                <span class="text-muted">
-                                    {{ $mediaItems->count() }} dari {{ $folder->getMedia($collectionName)->count() }} video
-                                </span>
+                                <div class="text-end">
+                                    <span class="badge bg-danger">
+                                        Total: {{ $folder->getMedia($collectionName)->count() }} video
+                                    </span>
+                                    @if($search)
+                                        <small class="d-block text-muted mt-1">
+                                            {{ $mediaItems->total() }} hasil ditemukan
+                                        </small>
+                                    @endif
+                                </div>
                             </div>
                         </div>
 
@@ -185,7 +192,18 @@
                 {{-- Pagination --}}
                 @if($mediaItems->hasPages())
                     <div class="mt-4">
-                        {{ $mediaItems->links() }}
+                        <div class="d-flex justify-content-between align-items-center flex-wrap gap-3">
+                            {{-- Pagination Info --}}
+                            <div class="text-muted small">
+                                Menampilkan {{ $mediaItems->firstItem() ?? 0 }} - {{ $mediaItems->lastItem() ?? 0 }}
+                                dari {{ $mediaItems->total() }} video
+                            </div>
+
+                            {{-- Pagination Links --}}
+                            <div>
+                                {{ $mediaItems->links() }}
+                            </div>
+                        </div>
                     </div>
                 @endif
             </div>
