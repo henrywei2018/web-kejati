@@ -14,7 +14,8 @@ class VideoGalleryPage extends Component
     public string $search = '';
     public string $sortBy = 'terbaru'; // terbaru, terlama, judul
 
-    protected $folderId = 9; // Folder ID untuk Video Gallery
+    protected $folderModelId = 8; // Model ID untuk folder Galeri
+    protected $collectionName = 'video'; // Collection name untuk video
 
     protected $queryString = ['search', 'sortBy'];
 
@@ -80,11 +81,11 @@ class VideoGalleryPage extends Component
 
     public function render()
     {
-        // Load folder Video Gallery
-        $folder = Folder::withoutGlobalScope('user')->findOrFail($this->folderId);
+        // Load folder Galeri (model_id 8) untuk collection 'video'
+        $folder = Folder::withoutGlobalScope('user')->findOrFail($this->folderModelId);
 
-        // Get all media from this folder
-        $mediaItems = collect($folder->getMedia($folder->collection));
+        // Get all media from this folder with collection 'video'
+        $mediaItems = collect($folder->getMedia($this->collectionName));
 
         // Apply search filter
         if ($this->search) {
@@ -119,13 +120,14 @@ class VideoGalleryPage extends Component
         // Get detail media if selected
         $detailMedia = null;
         if ($this->detailMediaId) {
-            $detailMedia = $folder->getMedia($folder->collection)->firstWhere('id', $this->detailMediaId);
+            $detailMedia = $folder->getMedia($this->collectionName)->firstWhere('id', $this->detailMediaId);
         }
 
         return view('livewire.pages.video-gallery-page', [
             'folder' => $folder,
             'mediaItems' => $paginatedMedia,
             'detailMedia' => $detailMedia,
+            'collectionName' => $this->collectionName,
         ])->layout('layouts.main', [
             'title' => 'Galeri Video - Kejaksaan Tinggi Kalimantan Utara',
             'metaDescription' => 'Kumpulan video kegiatan dan dokumentasi Kejaksaan Tinggi Kalimantan Utara',

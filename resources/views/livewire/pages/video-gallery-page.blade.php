@@ -55,7 +55,7 @@
                             <div class="d-flex justify-content-between align-items-center">
                                 <h4 class="mb-0">Galeri Video</h4>
                                 <span class="text-muted">
-                                    {{ $mediaItems->count() }} dari {{ $folder->getMedia($folder->collection)->count() }} video
+                                    {{ $mediaItems->count() }} dari {{ $folder->getMedia($collectionName)->count() }} video
                                 </span>
                             </div>
                         </div>
@@ -174,8 +174,8 @@
                                 </div>
                             </div>
                             <div class="flex-grow-1 ms-3">
-                                <h5 class="mb-1">{{ $folder->name }}</h5>
-                                <span class="badge bg-danger">{{ $folder->getMedia($folder->collection)->count() }} Video</span>
+                                <h5 class="mb-1">Video Gallery</h5>
+                                <span class="badge bg-danger">{{ $folder->getMedia($collectionName)->count() }} Video</span>
                             </div>
                         </div>
                         @if($folder->description)
@@ -192,7 +192,7 @@
                             Statistik
                         </h5>
                         @php
-                            $allMedia = $folder->getMedia($folder->collection);
+                            $allMedia = $folder->getMedia($collectionName);
                             $today = $allMedia->filter(fn($m) => $m->created_at->isToday())->count();
                             $thisWeek = $allMedia->filter(fn($m) => $m->created_at->isCurrentWeek())->count();
                             $thisMonth = $allMedia->filter(fn($m) => $m->created_at->isCurrentMonth())->count();
@@ -242,7 +242,7 @@
                             Video Terbaru
                         </h5>
                         @php
-                            $latestItems = $folder->getMedia($folder->collection)->sortByDesc('created_at')->take(5);
+                            $latestItems = $folder->getMedia($collectionName)->sortByDesc('created_at')->take(5);
                         @endphp
 
                         <div class="list-group list-group-flush">
