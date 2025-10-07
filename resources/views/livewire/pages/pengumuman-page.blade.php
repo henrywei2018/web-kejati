@@ -12,7 +12,7 @@
     />
 
     {{-- Content Section --}}
-    <div class="py-5">
+    <div class="px-4 py-5">
         <div class="row">
             {{-- Main Content --}}
             <div class="col-lg-9 mb-4 mb-lg-0">
@@ -164,51 +164,46 @@
             {{-- Sidebar --}}
             <div class="col-lg-3">
                 {{-- Latest Updates Widget --}}
-                <div class="card border-0 shadow-sm rounded">
-                    <div class="card-body">
-                        <h5 class="card-title mb-3">
-                            <i class="fas fa-clock text-danger me-2"></i>
-                            Terbaru
-                        </h5>
+                <div class="sidebar-widget">
+                    <div class="widget-header">
+                        <h4><i class="fas fa-clock me-2"></i>Terbaru</h4>
+                    </div>
+                    <div class="widget-body">
                         @php
                             $latestItems = $folder->getMedia($folder->collection)->sortByDesc('created_at')->take(5);
                         @endphp
 
-                        <div class="list-group list-group-flush">
-                            @forelse($latestItems as $item)
-                                <div class="list-group-item px-0 border-bottom" wire:click="showMediaDetail({{ $item->id }})" style="cursor: pointer;">
-                                    <div class="d-flex align-items-center">
-                                        <div class="flex-shrink-0">
-                                            @if(str_starts_with($item->mime_type, 'image/'))
-                                                <img src="{{ $item->getUrl() }}" alt="{{ $item->name }}"
-                                                     class="rounded" style="width: 40px; height: 40px; object-fit: cover;">
-                                            @else
-                                                <div class="rounded d-flex align-items-center justify-content-center"
-                                                     style="width: 40px; height: 40px; background-color: #dc3545;">
-                                                    <i class="fas fa-file-{{ $this->getFileIcon($item->mime_type) }} text-white"></i>
-                                                </div>
-                                            @endif
+                        @forelse($latestItems as $item)
+                            <a href="javascript:void(0)" wire:click="showMediaDetail({{ $item->id }})" class="news-item">
+                                <div class="news-thumbnail">
+                                    @if(str_starts_with($item->mime_type, 'image/'))
+                                        <img src="{{ $item->getUrl() }}" alt="{{ $item->custom_properties['title'] ?? $item->name }}">
+                                    @else
+                                        <div class="d-flex align-items-center justify-content-center h-100" style="background-color: #05AC69;">
+                                            <i class="fas fa-file-{{ $this->getFileIcon($item->mime_type) }} text-white fa-lg"></i>
                                         </div>
-                                        <div class="flex-grow-1 ms-3">
-                                            <h6 class="mb-1 small">{{ Str::limit($item->custom_properties['title'] ?? $item->name, 40) }}</h6>
-                                            <small class="text-muted">{{ $item->created_at->diffForHumans() }}</small>
-                                        </div>
+                                    @endif
+                                </div>
+                                <div class="news-content">
+                                    <h6 class="news-title">{{ Str::limit($item->custom_properties['title'] ?? $item->name, 45) }}</h6>
+                                    <div class="news-meta">
+                                        <i class="far fa-clock me-1"></i>
+                                        {{ $item->created_at->diffForHumans() }}
                                     </div>
                                 </div>
-                            @empty
-                                <p class="text-muted small mb-0">Belum ada item tersedia</p>
-                            @endforelse
-                        </div>
+                            </a>
+                        @empty
+                            <p class="text-muted small mb-0">Belum ada item tersedia</p>
+                        @endforelse
                     </div>
                 </div>
-                
+
                 {{-- Quick Stats Widget --}}
-                <div class="card border-0 shadow-sm rounded mb-4">
-                    <div class="card-body">
-                        <h5 class="card-title mb-3">
-                            <i class="fas fa-chart-bar text-danger me-2"></i>
-                            Statistik
-                        </h5>
+                <div class="sidebar-widget">
+                    <div class="widget-header">
+                        <h4><i class="fas fa-chart-bar me-2"></i>Statistik</h4>
+                    </div>
+                    <div class="widget-body">
                         @php
                             $allMedia = $folder->getMedia($folder->collection);
                             $today = $allMedia->filter(fn($m) => $m->created_at->isToday())->count();
@@ -217,42 +212,28 @@
                             $total = $allMedia->count();
                         @endphp
 
-                        <div class="mb-3">
-                            <div class="d-flex justify-content-between mb-1">
-                                <small class="text-muted">Hari Ini</small>
-                                <small class="text-dark fw-bold">{{ $today }}</small>
+                        <div class="info-list">
+                            <div class="info-item">
+                                <span class="info-label"><i class="fas fa-calendar-day me-2"></i>Hari Ini</span>
+                                <span class="info-value">{{ $today }}</span>
                             </div>
-                            <div class="progress" style="height: 6px;">
-                                <div class="progress-bar bg-danger" role="progressbar"
-                                     style="width: {{ $total > 0 ? ($today / $total * 100) : 0 }}%"></div>
+                            <div class="info-item">
+                                <span class="info-label"><i class="fas fa-calendar-week me-2"></i>Minggu Ini</span>
+                                <span class="info-value">{{ $thisWeek }}</span>
                             </div>
-                        </div>
-
-                        <div class="mb-3">
-                            <div class="d-flex justify-content-between mb-1">
-                                <small class="text-muted">Minggu Ini</small>
-                                <small class="text-dark fw-bold">{{ $thisWeek }}</small>
+                            <div class="info-item">
+                                <span class="info-label"><i class="fas fa-calendar-alt me-2"></i>Bulan Ini</span>
+                                <span class="info-value">{{ $thisMonth }}</span>
                             </div>
-                            <div class="progress" style="height: 6px;">
-                                <div class="progress-bar bg-danger" role="progressbar"
-                                     style="width: {{ $total > 0 ? ($thisWeek / $total * 100) : 0 }}%"></div>
-                            </div>
-                        </div>
-
-                        <div>
-                            <div class="d-flex justify-content-between mb-1">
-                                <small class="text-muted">Bulan Ini</small>
-                                <small class="text-dark fw-bold">{{ $thisMonth }}</small>
-                            </div>
-                            <div class="progress" style="height: 6px;">
-                                <div class="progress-bar bg-danger" role="progressbar"
-                                     style="width: {{ $total > 0 ? ($thisMonth / $total * 100) : 0 }}%"></div>
+                            <div class="info-item">
+                                <span class="info-label"><i class="fas fa-file-alt me-2"></i>Total</span>
+                                <span class="info-value">{{ $total }}</span>
                             </div>
                         </div>
                     </div>
                 </div>
 
-                
+
             </div>
         </div>
     </div>

@@ -112,13 +112,19 @@ class Post extends Model implements HasMedia
     {
         $this->attributes['content_raw'] = $value;
 
-        // Convert Markdown to HTML
-        $converter = new GithubFlavoredMarkdownConverter([
-            'html_input' => 'strip',
-            'allow_unsafe_links' => false,
-        ]);
-
-        $this->attributes['content_html'] = $converter->convert($value)->getContent();
+        // Check if content is already HTML (from RichEditor) or Markdown
+        // If it contains HTML tags, treat as HTML, otherwise convert from Markdown
+        if (strip_tags($value) !== $value) {
+            // Content contains HTML tags, use it directly
+            $this->attributes['content_html'] = $value;
+        } else {
+            // Content is plain text or markdown, convert to HTML
+            $converter = new GithubFlavoredMarkdownConverter([
+                'html_input' => 'strip',
+                'allow_unsafe_links' => false,
+            ]);
+            $this->attributes['content_html'] = $converter->convert($value)->getContent();
+        }
 
         // Auto-generate content overview if not set
         if (empty($this->attributes['content_overview'])) {
@@ -300,7 +306,7 @@ class Post extends Model implements HasMedia
      */
     public function getUrl()
     {
-        return route('blog.show', ['slug' => $this->slug]);
+        return route('berita.show', ['slug' => $this->slug]);
     }
 
     /**
@@ -316,7 +322,7 @@ class Post extends Model implements HasMedia
      */
     public function getCanonicalUrl()
     {
-        return route('blog.show', ['slug' => $this->slug]);
+        return route('berita.show', ['slug' => $this->slug]);
     }
 
     /**
@@ -349,11 +355,11 @@ class Post extends Model implements HasMedia
         return "https://www.facebook.com/sharer/sharer.php?u={$url}";
     }
 
-    public function getLinkedinShareUrl()
+    public function getInstagramShareUrl()
     {
-        $url = urlencode($this->getCanonicalUrl());
-        // $title = urlencode($this->title);
-        return "https://www.linkedin.com/sharing/share-offsite/?url={$url}";
+        // Instagram doesn't have direct URL sharing, so we return the post URL
+        // Users can copy the URL and paste it in Instagram
+        return $this->getCanonicalUrl();
     }
 
     public function getWhatsappShareUrl()

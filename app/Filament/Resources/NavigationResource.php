@@ -50,12 +50,22 @@ class NavigationResource extends Resource
 
                         Forms\Components\Select::make('parent_id')
                             ->label('Parent Menu')
-                            ->relationship('parent', 'label')
+                            ->options(function ($record) {
+                                return \App\Models\Navigation::query()
+                                    ->when($record, fn ($q) => $q->where('id', '!=', $record->id))
+                                    ->orderBy('order')
+                                    ->get()
+                                    ->mapWithKeys(function ($nav) {
+                                        $label = $nav->parent
+                                            ? "{$nav->parent->label} > {$nav->label}"
+                                            : $nav->label;
+                                        return [$nav->id => $label];
+                                    })
+                                    ->toArray();
+                            })
                             ->searchable()
-                            ->preload()
                             ->nullable()
-                            ->native(false)
-                            ->helperText('Kosongkan untuk menu utama'),
+                            ->helperText('Kosongkan untuk menu utama, atau pilih menu lain sebagai parent'),
 
                         Forms\Components\TextInput::make('label')
                             ->label('Label Menu')
@@ -66,11 +76,21 @@ class NavigationResource extends Resource
 
                         Forms\Components\Select::make('page_id')
                             ->label('Pilih Halaman')
-                            ->relationship('page', 'title')
+                            ->options(function () {
+                                return \App\Models\Page::query()
+                                    ->active()
+                                    ->orderBy('title')
+                                    ->get()
+                                    ->mapWithKeys(function ($page) {
+                                        $label = $page->parent
+                                            ? "{$page->parent->title} > {$page->title}"
+                                            : $page->title;
+                                        return [$page->id => $label];
+                                    })
+                                    ->toArray();
+                            })
                             ->searchable()
-                            ->preload()
                             ->required()
-                            ->native(false)
                             ->helperText('Label dan URL akan otomatis dari halaman')
                             ->visible(fn (Forms\Get $get) => $get('type') === 'page'),
 

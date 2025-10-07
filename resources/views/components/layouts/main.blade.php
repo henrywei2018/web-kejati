@@ -50,6 +50,9 @@
     <!-- Kejaksaan RI Theme -->
     <link rel="stylesheet" href="{{ asset('css/kejaksaan-theme.css') }}">
 
+    <!-- Custom Sidebar Widgets CSS -->
+    <link rel="stylesheet" href="{{ asset('css/sidebar-widgets.css') }}">
+
     @stack('styles')
     @livewireStyles
 </head>

@@ -14,6 +14,7 @@ class Page extends Model implements HasMedia
 
     protected $fillable = [
         'parent_id',
+        'navigation_id',
         'slug',
         'title',
         'content',
@@ -76,6 +77,11 @@ class Page extends Model implements HasMedia
         return $this->hasMany(Page::class, 'parent_id')->active()->ordered();
     }
 
+    public function navigation()
+    {
+        return $this->belongsTo(\App\Models\Navigation::class);
+    }
+
     // Scopes
     public function scopeActive($query)
     {
@@ -100,18 +106,23 @@ class Page extends Model implements HasMedia
     // Helper Methods
     public function getFullSlugAttribute(): string
     {
+        // Priority: navigation > parent > self
+        if ($this->navigation) {
+            // Use navigation's url_path which handles # URLs by generating slug from label
+            $navPath = $this->navigation->url_path;
+            return $navPath ? $navPath . '/' . $this->slug : $this->slug;
+        }
+
         if ($this->parent) {
             return $this->parent->slug . '/' . $this->slug;
         }
+
         return $this->slug;
     }
 
     public function getUrlAttribute(): string
     {
-        if ($this->parent) {
-            return url($this->parent->slug . '/' . $this->slug);
-        }
-        return url($this->slug);
+        return url($this->full_slug);
     }
 
     public function getRouteKeyName()

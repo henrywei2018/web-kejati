@@ -12,7 +12,7 @@
     />
 
     {{-- Content Section --}}
-    <div class="py-5">
+    <div class="px-4 py-5">
         <div class="row">
             {{-- Main Content --}}
             <div class="col-lg-9 mb-4 mb-lg-0">
@@ -146,33 +146,31 @@
             {{-- Sidebar --}}
             <div class="col-lg-3">
                 {{-- Folder Info Widget --}}
-                <div class="card border-0 shadow-sm rounded mb-4">
-                    <div class="card-body">
-                        <div class="d-flex align-items-center mb-3">
-                            <div class="flex-shrink-0">
-                                <div class="rounded-circle d-flex align-items-center justify-content-center"
-                                     style="width: 60px; height: 60px; background-color: {{ $folder->color ?? '#dc3545' }};">
-                                    <i class="fas fa-{{ $folder->icon ?? 'chart-bar' }} fa-2x text-white"></i>
+                <div class="sidebar-widget">
+                    <div class="widget-header">
+                        <h4><i class="fas fa-{{ $folder->icon ?? 'chart-bar' }} me-2"></i>{{ $folder->name }}</h4>
+                    </div>
+                    <div class="widget-body">
+                        <div class="info-list">
+                            <div class="info-item">
+                                <span class="info-label">Total Item</span>
+                                <span class="info-value">{{ $folder->getMedia($folder->collection)->count() }}</span>
+                            </div>
+                            @if($folder->description)
+                                <div class="mt-2">
+                                    <p class="text-muted small mb-0">{{ $folder->description }}</p>
                                 </div>
-                            </div>
-                            <div class="flex-grow-1 ms-3">
-                                <h5 class="mb-1">{{ $folder->name }}</h5>
-                                <span class="badge bg-danger">{{ $folder->getMedia($folder->collection)->count() }} Item</span>
-                            </div>
+                            @endif
                         </div>
-                        @if($folder->description)
-                            <p class="text-muted small mb-0">{{ $folder->description }}</p>
-                        @endif
                     </div>
                 </div>
 
                 {{-- Quick Stats Widget --}}
-                <div class="card border-0 shadow-sm rounded mb-4">
-                    <div class="card-body">
-                        <h5 class="card-title mb-3">
-                            <i class="fas fa-chart-bar text-danger me-2"></i>
-                            Statistik
-                        </h5>
+                <div class="sidebar-widget">
+                    <div class="widget-header">
+                        <h4><i class="fas fa-chart-bar me-2"></i>Statistik</h4>
+                    </div>
+                    <div class="widget-body">
                         @php
                             $allMedia = $folder->getMedia($folder->collection);
                             $today = $allMedia->filter(fn($m) => $m->created_at->isToday())->count();
@@ -181,70 +179,50 @@
                             $total = $allMedia->count();
                         @endphp
 
-                        <div class="mb-3">
-                            <div class="d-flex justify-content-between mb-1">
-                                <small class="text-muted">Hari Ini</small>
-                                <small class="text-dark fw-bold">{{ $today }}</small>
+                        <div class="info-list">
+                            <div class="info-item">
+                                <span class="info-label">Hari Ini</span>
+                                <span class="info-value">{{ $today }}</span>
                             </div>
-                            <div class="progress" style="height: 6px;">
-                                <div class="progress-bar bg-danger" role="progressbar"
-                                     style="width: {{ $total > 0 ? ($today / $total * 100) : 0 }}%"></div>
+                            <div class="info-item">
+                                <span class="info-label">Minggu Ini</span>
+                                <span class="info-value">{{ $thisWeek }}</span>
                             </div>
-                        </div>
-
-                        <div class="mb-3">
-                            <div class="d-flex justify-content-between mb-1">
-                                <small class="text-muted">Minggu Ini</small>
-                                <small class="text-dark fw-bold">{{ $thisWeek }}</small>
+                            <div class="info-item">
+                                <span class="info-label">Bulan Ini</span>
+                                <span class="info-value">{{ $thisMonth }}</span>
                             </div>
-                            <div class="progress" style="height: 6px;">
-                                <div class="progress-bar bg-danger" role="progressbar"
-                                     style="width: {{ $total > 0 ? ($thisWeek / $total * 100) : 0 }}%"></div>
-                            </div>
-                        </div>
-
-                        <div>
-                            <div class="d-flex justify-content-between mb-1">
-                                <small class="text-muted">Bulan Ini</small>
-                                <small class="text-dark fw-bold">{{ $thisMonth }}</small>
-                            </div>
-                            <div class="progress" style="height: 6px;">
-                                <div class="progress-bar bg-danger" role="progressbar"
-                                     style="width: {{ $total > 0 ? ($thisMonth / $total * 100) : 0 }}%"></div>
+                            <div class="info-item">
+                                <span class="info-label">Total</span>
+                                <span class="info-value">{{ $total }}</span>
                             </div>
                         </div>
                     </div>
                 </div>
 
                 {{-- Latest Updates Widget --}}
-                <div class="card border-0 shadow-sm rounded">
-                    <div class="card-body">
-                        <h5 class="card-title mb-3">
-                            <i class="fas fa-clock text-danger me-2"></i>
-                            Terbaru
-                        </h5>
+                <div class="sidebar-widget">
+                    <div class="widget-header">
+                        <h4><i class="fas fa-clock me-2"></i>Terbaru</h4>
+                    </div>
+                    <div class="widget-body">
                         @php
                             $latestItems = $folder->getMedia($folder->collection)->sortByDesc('created_at')->take(5);
                         @endphp
 
-                        <div class="list-group list-group-flush">
-                            @forelse($latestItems as $item)
-                                <div class="list-group-item px-0 border-bottom" wire:click="showMediaDetail({{ $item->id }})" style="cursor: pointer;">
-                                    <div class="d-flex align-items-center">
-                                        <div class="flex-shrink-0">
-                                            <img src="{{ $item->getUrl() }}" alt="{{ $item->name }}"
-                                                 class="rounded" style="width: 40px; height: 40px; object-fit: cover;">
-                                        </div>
-                                        <div class="flex-grow-1 ms-3">
-                                            <h6 class="mb-1 small">{{ Str::limit($item->custom_properties['title'] ?? $item->name, 40) }}</h6>
-                                            <small class="text-muted">{{ $item->created_at->diffForHumans() }}</small>
-                                        </div>
-                                    </div>
+                        @forelse($latestItems as $item)
+                            <div class="news-item" wire:click="showMediaDetail({{ $item->id }})" style="cursor: pointer;">
+                                <div class="news-thumbnail">
+                                    <img src="{{ $item->getUrl() }}" alt="{{ $item->name }}">
                                 </div>
-                            @empty
-                                <p class="text-muted small mb-0">Belum ada item tersedia</p>
-                            @endforelse
-                        </div>
+                                <div class="news-content">
+                                    <h6 class="news-title">{{ Str::limit($item->custom_properties['title'] ?? $item->name, 40) }}</h6>
+                                    <div class="news-meta">{{ $item->created_at->diffForHumans() }}</div>
+                                </div>
+                            </div>
+                        @empty
+                            <p class="text-muted small mb-0">Belum ada item tersedia</p>
+                        @endforelse
                     </div>
                 </div>
             </div>

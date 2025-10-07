@@ -47,6 +47,9 @@
     <!-- Theme Custom CSS -->
     <link rel="stylesheet" href="{{ asset('frontend/css/custom.css') }}">
 
+    <!-- Custom Sidebar Widgets CSS -->
+    <link rel="stylesheet" href="{{ asset('css/sidebar-widgets.css') }}">
+
     @stack('styles')
     @livewireStyles
 </head>

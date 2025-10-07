@@ -15,7 +15,9 @@
       "Bash(git commit -m \"$(cat <<''EOF''\nfeat: Add Infografis and Pengumuman pages with media gallery functionality\n\n- Created InfografisPage Livewire component for image gallery display\n  - Grid layout with search and sort functionality\n  - Image preview with modal detail view\n  - Pagination support (12 items per page)\n  - Statistics sidebar showing recent uploads\n  \n- Created PengumumanPage Livewire component for document listings\n  - Table layout for mixed media types (PDF, images, documents)\n  - File type icons for non-image files\n  - PDF preview in modal with iframe\n  - Pagination support (10 items per page)\n  \n- Updated routes to include both pages under /informasi path\n- Removed deprecated FolderGalleryPage in favor of specific pages\n- Updated Navigation model to remove folder relationship\n- Enhanced dynamic page routing structure\n\n🤖 Generated with [Claude Code](https://claude.com/claude-code)\n\nCo-Authored-By: Claude <noreply@anthropic.com>\nEOF\n)\")",
       "Bash(git commit:*)",
       "Bash(php:*)",
-      "Bash(mysql:*)"
+      "Bash(mysql:*)",
+      "Bash(curl:*)",
+      "Bash(timeout:*)"
     ],
     "deny": [],
     "ask": []

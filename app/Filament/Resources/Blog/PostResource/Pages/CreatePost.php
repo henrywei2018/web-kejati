@@ -10,6 +10,16 @@ class CreatePost extends CreateRecord
 {
     protected static string $resource = PostResource::class;
 
+    protected function mutateFormDataBeforeCreate(array $data): array
+    {
+        // Set blog_author_id to current logged in user if not already set
+        if (empty($data['blog_author_id'])) {
+            $data['blog_author_id'] = auth()->id();
+        }
+
+        return $data;
+    }
+
     protected function afterCreate(): void
     {
         if ($this->record->status === \App\Enums\Blog\PostStatus::PENDING) {

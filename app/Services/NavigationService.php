@@ -61,11 +61,13 @@ class NavigationService
                 'target' => $nav->target ?? '_self',
             ];
 
-            // Add children if exists
+            // Collect all children: from activeChildren (Navigation children) + Pages with this navigation_id
+            $children = [];
+
+            // 1. Add navigation children (submenu)
             if ($nav->activeChildren->isNotEmpty()) {
-                $item['children'] = [];
                 foreach ($nav->activeChildren as $child) {
-                    $item['children'][] = [
+                    $children[] = [
                         'label' => $child->computed_label,
                         'route' => $child->type === 'page' && $child->page ? 'page.show' : null,
                         'url' => $child->computed_url,
@@ -73,6 +75,27 @@ class NavigationService
                         'target' => $child->target ?? '_self',
                     ];
                 }
+            }
+
+            // 2. Add dynamic pages that belong to this navigation (pages with navigation_id)
+            $navPages = Page::active()
+                ->where('navigation_id', $nav->id)
+                ->ordered()
+                ->get();
+
+            foreach ($navPages as $page) {
+                $children[] = [
+                    'label' => $page->title,
+                    'route' => 'page.show',
+                    'url' => $page->url,
+                    'active' => $this->isActiveUrl($page->url),
+                    'target' => '_self',
+                ];
+            }
+
+            // Add children to item if any exist
+            if (!empty($children)) {
+                $item['children'] = $children;
             }
 
             $menu[] = $item;
@@ -84,12 +107,14 @@ class NavigationService
 
     /**
      * Get dynamic pages menu items with nested children
+     * Only pages WITHOUT navigation_id (standalone pages)
      */
     public function getDynamicPagesMenu(): array
     {
-        // Get only parent pages (no parent_id) that should appear in navigation
+        // Get only parent pages (no parent_id and no navigation_id) that should appear in navigation
         $pages = Page::active()
             ->parents()
+            ->whereNull('navigation_id') // Exclude pages already under Navigation menu
             ->ordered()
             ->with(['activeChildren'])
             ->get();
@@ -100,19 +125,19 @@ class NavigationService
             $item = [
                 'label' => $page->title,
                 'route' => 'page.show',
-                'url' => route('page.show', $page->slug),
-                'active' => $this->isActiveRoute('page.show') && request()->route('slug') === $page->slug,
+                'url' => $page->url,
+                'active' => $this->isActiveUrl($page->url),
             ];
 
-            // Add children if exists
+            // Add children if exists (pages with parent_id)
             if ($page->activeChildren->isNotEmpty()) {
                 $item['children'] = [];
                 foreach ($page->activeChildren as $child) {
                     $item['children'][] = [
                         'label' => $child->title,
-                        'route' => 'page.show.child',
-                        'url' => route('page.show.child', ['parent_slug' => $page->slug, 'child_slug' => $child->slug]),
-                        'active' => $this->isActiveRoute('page.show.child') && request()->route('child_slug') === $child->slug,
+                        'route' => 'page.show',
+                        'url' => $child->url,
+                        'active' => $this->isActiveUrl($child->url),
                     ];
                 }
             }

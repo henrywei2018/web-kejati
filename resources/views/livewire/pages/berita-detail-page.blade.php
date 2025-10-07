@@ -13,7 +13,7 @@
     />
 
     {{-- Content Section --}}
-    <div class="container py-5">
+    <div class="px-4 py-5">
         <div class="row">
             {{-- Main Content --}}
             <div class="col-lg-8 mb-4 mb-lg-0">
@@ -111,13 +111,13 @@
                                     <i class="fab fa-whatsapp me-1"></i>
                                     WhatsApp
                                 </a>
-                                <a href="{{ $post->getLinkedinShareUrl() }}"
-                                   target="_blank"
-                                   class="btn btn-primary btn-sm"
-                                   style="background: #0077b5; border-color: #0077b5;">
-                                    <i class="fab fa-linkedin-in me-1"></i>
-                                    LinkedIn
-                                </a>
+                                <button
+                                   onclick="copyToClipboard('{{ $post->getInstagramShareUrl() }}')"
+                                   class="btn btn-sm text-white"
+                                   style="background: linear-gradient(45deg, #f09433 0%,#e6683c 25%,#dc2743 50%,#cc2366 75%,#bc1888 100%); border: none;">
+                                    <i class="fab fa-instagram me-1"></i>
+                                    Instagram
+                                </button>
                             </div>
                         </div>
 
@@ -203,29 +203,44 @@
 
             {{-- Sidebar --}}
             <div class="col-lg-4">
-                {{-- Author Info --}}
-                @if($post->author)
-                    <div class="card border-0 shadow-sm rounded mb-4">
-                        <div class="card-body">
-                            <h5 class="card-title mb-3">
-                                <i class="fas fa-user text-danger me-2"></i>
-                                Tentang Penulis
-                            </h5>
-                            <div class="d-flex align-items-center">
-                                <div class="rounded-circle bg-danger text-white d-flex align-items-center justify-content-center me-3"
-                                     style="width: 60px; height: 60px; font-size: 1.5rem;">
-                                    {{ strtoupper(substr($post->author->name, 0, 1)) }}
+                {{-- Article Info Widget --}}
+                <div class="card border-0 shadow-sm rounded mb-4">
+                    <div class="card-body">
+                        <h5 class="card-title mb-3">
+                            <i class="fas fa-info-circle text-danger me-2"></i>
+                            Info Artikel
+                        </h5>
+                        <div class="d-flex flex-column gap-3">
+                            @if($post->category)
+                                <div class="d-flex justify-content-between align-items-center">
+                                    <span class="text-muted small">Kategori</span>
+                                    <a href="{{ route('berita.category', $post->category->slug) }}"
+                                       class="badge bg-danger text-decoration-none">
+                                        {{ $post->category->name }}
+                                    </a>
                                 </div>
-                                <div>
-                                    <h6 class="mb-0">{{ $post->author->name }}</h6>
-                                    @if($post->author->email)
-                                        <small class="text-muted">{{ $post->author->email }}</small>
-                                    @endif
-                                </div>
+                            @endif
+                            <div class="d-flex justify-content-between align-items-center">
+                                <span class="text-muted small">Tanggal Publish</span>
+                                <span class="small fw-bold">{{ $post->published_at->format('d M Y') }}</span>
                             </div>
+                            <div class="d-flex justify-content-between align-items-center">
+                                <span class="text-muted small">Waktu Baca</span>
+                                <span class="small fw-bold">{{ $post->reading_time }} menit</span>
+                            </div>
+                            <div class="d-flex justify-content-between align-items-center">
+                                <span class="text-muted small">Dilihat</span>
+                                <span class="small fw-bold">{{ number_format($post->view_count) }}x</span>
+                            </div>
+                            @if($post->author)
+                                <div class="d-flex justify-content-between align-items-center">
+                                    <span class="text-muted small">Penulis</span>
+                                    <span class="small fw-bold">{{ $post->author->name }}</span>
+                                </div>
+                            @endif
                         </div>
                     </div>
-                @endif
+                </div>
 
                 {{-- Table of Contents (if long article) --}}
                 @if($post->reading_time > 5)
@@ -241,6 +256,83 @@
                         </div>
                     </div>
                 @endif
+
+                {{-- Popular Posts Widget --}}
+                @php
+                    $popularPosts = \App\Models\Blog\Post::published()
+                        ->where('id', '!=', $post->id)
+                        ->orderBy('view_count', 'desc')
+                        ->limit(5)
+                        ->get();
+                @endphp
+                @if($popularPosts->count() > 0)
+                    <div class="card border-0 shadow-sm rounded mb-4">
+                        <div class="card-body">
+                            <h5 class="card-title mb-3">
+                                <i class="fas fa-fire text-danger me-2"></i>
+                                Berita Populer
+                            </h5>
+                            <div class="list-group list-group-flush">
+                                @foreach($popularPosts as $popular)
+                                    <a href="{{ route('berita.show', $popular->slug) }}"
+                                       class="list-group-item list-group-item-action px-0 border-bottom">
+                                        <div class="d-flex align-items-start">
+                                            @if($popular->hasFeaturedImage())
+                                                <img src="{{ $popular->getFeaturedImageUrl('thumbnail') }}"
+                                                     class="rounded me-3"
+                                                     style="width: 60px; height: 60px; object-fit: cover;"
+                                                     alt="{{ $popular->title }}">
+                                            @endif
+                                            <div class="flex-grow-1">
+                                                <h6 class="mb-1 small">{{ Str::limit($popular->title, 50) }}</h6>
+                                                <small class="text-muted">
+                                                    <i class="far fa-eye me-1"></i>
+                                                    {{ number_format($popular->view_count) }} views
+                                                </small>
+                                            </div>
+                                        </div>
+                                    </a>
+                                @endforeach
+                            </div>
+                        </div>
+                    </div>
+                @endif
+
+                {{-- Categories Widget --}}
+                @php
+                    $categories = \App\Models\Blog\Category::active()
+                        ->withCount(['posts' => function($q) {
+                            $q->published();
+                        }])
+                        ->orderBy('name')
+                        ->get();
+                @endphp
+                <div class="card border-0 shadow-sm rounded mb-4">
+                    <div class="card-body">
+                        <h5 class="card-title mb-3">
+                            <i class="fas fa-folder text-danger me-2"></i>
+                            Kategori
+                        </h5>
+                        <div class="list-group list-group-flush">
+                            <a href="{{ route('berita.index') }}"
+                               class="list-group-item list-group-item-action d-flex justify-content-between align-items-center px-0 border-0">
+                                <span>Semua Berita</span>
+                                <span class="badge bg-secondary rounded-pill">
+                                    {{ \App\Models\Blog\Post::published()->count() }}
+                                </span>
+                            </a>
+                            @foreach($categories as $cat)
+                                <a href="{{ route('berita.category', $cat->slug) }}"
+                                   class="list-group-item list-group-item-action d-flex justify-content-between align-items-center px-0 border-0 {{ $post->category && $post->category->id === $cat->id ? 'fw-bold text-danger' : '' }}">
+                                    <span>{{ $cat->name }}</span>
+                                    <span class="badge {{ $post->category && $post->category->id === $cat->id ? 'bg-danger' : 'bg-secondary' }} rounded-pill">
+                                        {{ $cat->posts_count }}
+                                    </span>
+                                </a>
+                            @endforeach
+                        </div>
+                    </div>
+                </div>
 
                 {{-- Back to List --}}
                 <div class="card border-0 shadow-sm rounded">
@@ -361,6 +453,29 @@
 
     @push('scripts')
     <script>
+        // Copy to clipboard function for Instagram share
+        function copyToClipboard(text) {
+            // Create temporary input element
+            const tempInput = document.createElement('input');
+            tempInput.value = text;
+            document.body.appendChild(tempInput);
+            tempInput.select();
+            tempInput.setSelectionRange(0, 99999); // For mobile devices
+
+            try {
+                // Copy text
+                document.execCommand('copy');
+
+                // Show success message
+                alert('Link berhasil disalin! Silakan paste di Instagram Story atau Bio Anda.');
+            } catch (err) {
+                alert('Gagal menyalin link. Silakan copy manual: ' + text);
+            }
+
+            // Remove temporary input
+            document.body.removeChild(tempInput);
+        }
+
         // Generate Table of Contents from article headings
         document.addEventListener('DOMContentLoaded', function() {
             const articleContent = document.querySelector('.article-content');

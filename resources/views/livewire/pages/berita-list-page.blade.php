@@ -12,7 +12,7 @@
     />
 
     {{-- Content Section --}}
-    <div class="container py-5">
+    <div class="px-4 py-5">
         <div class="row">
             {{-- Main Content --}}
             <div class="col-lg-8 mb-4 mb-lg-0">
@@ -194,27 +194,22 @@
             {{-- Sidebar --}}
             <div class="col-lg-4">
                 {{-- Categories Widget --}}
-                <div class="card border-0 shadow-sm rounded mb-4">
-                    <div class="card-body">
-                        <h5 class="card-title mb-3">
-                            <i class="fas fa-folder text-danger me-2"></i>
-                            Kategori
-                        </h5>
-                        <div class="list-group list-group-flush">
+                <div class="sidebar-widget">
+                    <div class="widget-header">
+                        <h4><i class="fas fa-folder me-2"></i>Kategori</h4>
+                    </div>
+                    <div class="widget-body">
+                        <div class="category-list">
                             <a href="{{ route('berita.index') }}"
-                               class="list-group-item list-group-item-action d-flex justify-content-between align-items-center px-0 border-0 {{ !$categorySlug ? 'fw-bold text-danger' : '' }}">
+                               class="category-item {{ !$categorySlug ? 'active' : '' }}">
                                 <span>Semua Berita</span>
-                                <span class="badge {{ !$categorySlug ? 'bg-danger' : 'bg-secondary' }} rounded-pill">
-                                    {{ \App\Models\Blog\Post::published()->count() }}
-                                </span>
+                                <span class="category-count">{{ \App\Models\Blog\Post::published()->count() }}</span>
                             </a>
                             @foreach($categories as $cat)
                                 <a href="{{ route('berita.category', $cat->slug) }}"
-                                   class="list-group-item list-group-item-action d-flex justify-content-between align-items-center px-0 border-0 {{ $categorySlug === $cat->slug ? 'fw-bold text-danger' : '' }}">
+                                   class="category-item {{ $categorySlug === $cat->slug ? 'active' : '' }}">
                                     <span>{{ $cat->name }}</span>
-                                    <span class="badge {{ $categorySlug === $cat->slug ? 'bg-danger' : 'bg-secondary' }} rounded-pill">
-                                        {{ $cat->posts_count }}
-                                    </span>
+                                    <span class="category-count">{{ $cat->posts_count }}</span>
                                 </a>
                             @endforeach
                         </div>
@@ -223,52 +218,43 @@
 
                 {{-- Popular Posts Widget --}}
                 @if($popularPosts->count() > 0)
-                    <div class="card border-0 shadow-sm rounded mb-4">
-                        <div class="card-body">
-                            <h5 class="card-title mb-3">
-                                <i class="fas fa-fire text-danger me-2"></i>
-                                Berita Populer
-                            </h5>
-                            <div class="list-group list-group-flush">
-                                @foreach($popularPosts as $popular)
-                                    <a href="{{ route('berita.show', $popular->slug) }}"
-                                       class="list-group-item list-group-item-action px-0 border-bottom">
-                                        <div class="d-flex align-items-start">
-                                            @if($popular->hasFeaturedImage())
-                                                <img src="{{ $popular->getFeaturedImageUrl('thumbnail') }}"
-                                                     class="rounded me-3"
-                                                     style="width: 60px; height: 60px; object-fit: cover;"
-                                                     alt="{{ $popular->title }}">
-                                            @endif
-                                            <div class="flex-grow-1">
-                                                <h6 class="mb-1 small">{{ Str::limit($popular->title, 50) }}</h6>
-                                                <small class="text-muted">
-                                                    <i class="far fa-eye me-1"></i>
-                                                    {{ number_format($popular->view_count) }} views
-                                                </small>
-                                            </div>
+                    <div class="sidebar-widget">
+                        <div class="widget-header">
+                            <h4><i class="fas fa-fire me-2"></i>Berita Populer</h4>
+                        </div>
+                        <div class="widget-body">
+                            @foreach($popularPosts as $popular)
+                                <a href="{{ route('berita.show', $popular->slug) }}" class="news-item">
+                                    @if($popular->hasFeaturedImage())
+                                        <div class="news-thumbnail">
+                                            <img src="{{ $popular->getFeaturedImageUrl('thumbnail') }}"
+                                                 alt="{{ $popular->title }}">
                                         </div>
-                                    </a>
-                                @endforeach
-                            </div>
+                                    @endif
+                                    <div class="news-content">
+                                        <h6 class="news-title">{{ $popular->title }}</h6>
+                                        <div class="news-meta">
+                                            <i class="far fa-eye"></i> {{ number_format($popular->view_count) }}
+                                        </div>
+                                    </div>
+                                </a>
+                            @endforeach
                         </div>
                     </div>
                 @endif
 
                 {{-- Tags Widget --}}
                 @if($popularTags->count() > 0)
-                    <div class="card border-0 shadow-sm rounded">
-                        <div class="card-body">
-                            <h5 class="card-title mb-3">
-                                <i class="fas fa-tags text-danger me-2"></i>
-                                Tag Populer
-                            </h5>
-                            <div class="d-flex flex-wrap gap-2">
+                    <div class="sidebar-widget">
+                        <div class="widget-header">
+                            <h4><i class="fas fa-tags me-2"></i>Tag Populer</h4>
+                        </div>
+                        <div class="widget-body">
+                            <div class="tag-cloud">
                                 @foreach($popularTags as $popularTag)
                                     <a href="{{ route('berita.index', ['tag' => $popularTag->name]) }}"
-                                       class="badge {{ $tag === $popularTag->name ? 'bg-danger' : 'bg-light text-dark' }} text-decoration-none py-2 px-3">
-                                        {{ $popularTag->name }}
-                                        <span class="ms-1">({{ $popularTag->taggables_count }})</span>
+                                       class="tag-item {{ $tag === $popularTag->name ? 'active' : '' }}">
+                                        {{ $popularTag->name }} ({{ $popularTag->taggables_count }})
                                     </a>
                                 @endforeach
                             </div>
@@ -298,6 +284,185 @@
             left: 0;
             z-index: 1;
             content: "";
+        }
+
+        /* Sidebar Widget Styles */
+        .sidebar-widget {
+            background: white;
+            border-radius: 0.75rem;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+            overflow: hidden;
+            margin-bottom: 1rem;
+            transition: box-shadow 0.3s ease;
+        }
+
+        .sidebar-widget:hover {
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+        }
+
+        .widget-header {
+            background: linear-gradient(135deg, #05AC69 0%, #048B56 100%);
+            padding: 0.75rem 1rem;
+            border-bottom: 2px solid #D4AF37;
+        }
+
+        .widget-header h4 {
+            color: white;
+            font-size: 1rem;
+            font-weight: 600;
+            margin: 0;
+            letter-spacing: 0.025em;
+        }
+
+        .widget-body {
+            padding: 1rem;
+        }
+
+        /* Category List */
+        .category-list {
+            display: flex;
+            flex-direction: column;
+            gap: 0.125rem;
+        }
+
+        .category-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0.625rem 0.75rem;
+            border-left: 3px solid transparent;
+            border-radius: 0.25rem;
+            text-decoration: none;
+            color: #374151;
+            font-size: 0.9rem;
+            transition: all 0.2s ease;
+        }
+
+        .category-item:hover {
+            background: rgba(5, 172, 105, 0.08);
+            border-left-color: #05AC69;
+            padding-left: 1rem;
+        }
+
+        .category-item.active {
+            background: linear-gradient(90deg, rgba(5, 172, 105, 0.15) 0%, rgba(5, 172, 105, 0.05) 100%);
+            border-left-color: #05AC69;
+            color: #05AC69;
+            font-weight: 600;
+        }
+
+        .category-count {
+            background: #f3f4f6;
+            padding: 0.125rem 0.5rem;
+            border-radius: 9999px;
+            font-size: 0.75rem;
+            font-weight: 600;
+            color: #6b7280;
+        }
+
+        .category-item.active .category-count {
+            background: #05AC69;
+            color: white;
+        }
+
+        /* News Item */
+        .news-item {
+            display: flex;
+            gap: 0.75rem;
+            padding: 0.625rem;
+            border-radius: 0.375rem;
+            transition: all 0.2s ease;
+            text-decoration: none;
+            margin-bottom: 0.5rem;
+        }
+
+        .news-item:hover {
+            background: rgba(5, 172, 105, 0.05);
+            transform: translateX(4px);
+        }
+
+        .news-item:last-child {
+            margin-bottom: 0;
+        }
+
+        .news-thumbnail {
+            flex-shrink: 0;
+            width: 75px;
+            height: 60px;
+            border-radius: 0.375rem;
+            overflow: hidden;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+
+        .news-thumbnail img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            transition: transform 0.3s ease;
+        }
+
+        .news-item:hover .news-thumbnail img {
+            transform: scale(1.1);
+        }
+
+        .news-content {
+            flex: 1;
+            min-width: 0;
+        }
+
+        .news-title {
+            font-size: 0.85rem;
+            font-weight: 600;
+            line-height: 1.35;
+            color: #1f2937;
+            margin: 0 0 0.25rem 0;
+            display: -webkit-box;
+            -webkit-line-clamp: 2;
+            -webkit-box-orient: vertical;
+            overflow: hidden;
+        }
+
+        .news-meta {
+            font-size: 0.75rem;
+            color: #9ca3af;
+        }
+
+        /* Tag Cloud */
+        .tag-cloud {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.375rem;
+        }
+
+        .tag-item {
+            display: inline-block;
+            padding: 0.375rem 0.75rem;
+            background: #f3f4f6;
+            color: #374151;
+            border-radius: 0.375rem;
+            text-decoration: none;
+            font-size: 0.8rem;
+            transition: all 0.2s ease;
+        }
+
+        .tag-item:hover {
+            background: rgba(5, 172, 105, 0.1);
+            color: #05AC69;
+        }
+
+        .tag-item.active {
+            background: #05AC69;
+            color: white;
+        }
+
+        @media (max-width: 991px) {
+            .widget-body {
+                padding: 0.75rem;
+            }
+
+            .sidebar-widget {
+                margin-bottom: 0.75rem;
+            }
         }
     </style>
     @endpush

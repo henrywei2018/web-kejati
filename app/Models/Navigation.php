@@ -91,4 +91,18 @@ class Navigation extends Model
 
         return $this->label;
     }
+
+    // Get URL path without domain (for routing)
+    public function getUrlPathAttribute(): string
+    {
+        $url = $this->computed_url;
+
+        // If URL is # (parent menu), generate slug from label
+        if ($url === '#') {
+            return \Illuminate\Support\Str::slug($this->label);
+        }
+
+        $path = parse_url($url, PHP_URL_PATH);
+        return trim($path ?? '', '/');
+    }
 }

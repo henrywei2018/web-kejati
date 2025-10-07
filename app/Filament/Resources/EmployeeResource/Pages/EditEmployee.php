@@ -1,14 +1,14 @@
 <?php
 
-namespace App\Filament\Resources\MediaGalleryResource\Pages;
+namespace App\Filament\Resources\EmployeeResource\Pages;
 
-use App\Filament\Resources\MediaGalleryResource;
+use App\Filament\Resources\EmployeeResource;
 use Filament\Actions;
 use Filament\Resources\Pages\EditRecord;
 
-class EditMediaGallery extends EditRecord
+class EditEmployee extends EditRecord
 {
-    protected static string $resource = MediaGalleryResource::class;
+    protected static string $resource = EmployeeResource::class;
 
     protected function getHeaderActions(): array
     {

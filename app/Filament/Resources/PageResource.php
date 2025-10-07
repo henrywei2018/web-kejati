@@ -54,17 +54,38 @@ class PageResource extends Resource
                                             ])
                                             ->required()
                                             ->default('page')
-                                            ->helperText('Pilih tipe halaman untuk kategorisasi')
-                                            ->native(false),
+                                            ->helperText('Pilih tipe halaman untuk kategorisasi'),
 
-                                        Forms\Components\Select::make('parent_id')
-                                            ->label('Halaman Induk')
-                                            ->relationship('parent', 'title')
+                                        Forms\Components\Select::make('navigation_id')
+                                            ->label('Menu Navigasi Parent')
+                                            ->relationship('navigation', 'label', function ($query) {
+                                                return $query->active()->orderBy('order');
+                                            })
+                                            ->getOptionLabelFromRecordUsing(fn ($record) => $record->parent
+                                                ? "{$record->parent->label} > {$record->label}"
+                                                : $record->label)
                                             ->searchable()
                                             ->preload()
                                             ->nullable()
-                                            ->helperText('Kosongkan jika ini adalah halaman utama/parent')
-                                            ->native(false),
+                                            ->helperText('Pilih menu navigasi sebagai parent (opsional)')
+                                            ->live()
+                                            ->afterStateUpdated(fn (callable $set) => $set('parent_id', null)),
+
+                                        Forms\Components\Select::make('parent_id')
+                                            ->label('Halaman Induk')
+                                            ->relationship('parent', 'title', function ($query, $record) {
+                                                return $query
+                                                    ->when($record, fn ($q) => $q->where('id', '!=', $record->id))
+                                                    ->orderBy('title');
+                                            })
+                                            ->getOptionLabelFromRecordUsing(fn ($record) => $record->parent
+                                                ? "{$record->parent->title} > {$record->title}"
+                                                : $record->title)
+                                            ->searchable()
+                                            ->preload()
+                                            ->nullable()
+                                            ->helperText('Alternatif: Pilih halaman lain sebagai parent')
+                                            ->hidden(fn (Forms\Get $get) => filled($get('navigation_id'))),
                                     ])
                                     ->columns(2),
 
@@ -259,12 +280,23 @@ class PageResource extends Resource
                     ->sortable()
                     ->description(fn (Page $record): string => $record->full_slug),
 
-                Tables\Columns\TextColumn::make('parent.title')
-                    ->label('Halaman Induk')
+                Tables\Columns\TextColumn::make('navigation.label')
+                    ->label('Menu Parent')
                     ->searchable()
                     ->sortable()
                     ->toggleable()
-                    ->placeholder('Halaman Utama'),
+                    ->badge()
+                    ->color('info')
+                    ->placeholder('-'),
+
+                Tables\Columns\TextColumn::make('parent.title')
+                    ->label('Halaman Parent')
+                    ->searchable()
+                    ->sortable()
+                    ->toggleable()
+                    ->badge()
+                    ->color('warning')
+                    ->placeholder('-'),
 
                 Tables\Columns\SpatieMediaLibraryImageColumn::make('featured_image')
                     ->label('Gambar')

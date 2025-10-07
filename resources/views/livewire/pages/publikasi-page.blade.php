@@ -12,7 +12,7 @@
     />
 
     {{-- Content Section --}}
-    <div class="py-5">
+    <div class="px-4 py-5">
         <div class="row">
             {{-- Main Content --}}
             <div class="col-lg-9 mb-4 mb-lg-0">
@@ -207,42 +207,38 @@
             {{-- Sidebar --}}
             <div class="col-lg-3">
                 {{-- Folder Info Widget --}}
-                <div class="card border-0 shadow-sm rounded mb-4">
-                    <div class="card-body">
-                        <div class="d-flex align-items-center mb-3">
-                            <div class="flex-shrink-0">
-                                <div class="rounded-circle d-flex align-items-center justify-content-center"
-                                     style="width: 60px; height: 60px; background-color: {{ $folder->color ?? '#dc3545' }};">
-                                    <i class="fas fa-{{ $folder->icon ?? 'folder' }} fa-2x text-white"></i>
+                <div class="sidebar-widget">
+                    <div class="widget-header">
+                        <h4><i class="fas fa-folder me-2"></i>Publikasi</h4>
+                    </div>
+                    <div class="widget-body">
+                        <div class="info-list">
+                            <div class="info-item">
+                                <span class="info-label"><i class="fas fa-file me-2"></i>Total Media</span>
+                                <span class="info-value">{{ $totalMedia }}</span>
+                            </div>
+                            @if($folder->description)
+                                <div class="mt-3">
+                                    <p class="text-muted small mb-0">{{ $folder->description }}</p>
                                 </div>
-                            </div>
-                            <div class="flex-grow-1 ms-3">
-                                <h5 class="mb-1">Publikasi</h5>
-                                <span class="badge bg-danger">{{ $totalMedia }} Media</span>
-                            </div>
+                            @endif
                         </div>
-                        @if($folder->description)
-                            <p class="text-muted small mb-0">{{ $folder->description }}</p>
-                        @endif
                     </div>
                 </div>
 
                 {{-- Collection Stats Widget --}}
-                <div class="card border-0 shadow-sm rounded mb-4">
-                    <div class="card-body">
-                        <h5 class="card-title mb-3">
-                            <i class="fas fa-layer-group text-danger me-2"></i>
-                            Koleksi
-                        </h5>
-
-                        <div class="list-group list-group-flush">
+                <div class="sidebar-widget">
+                    <div class="widget-header">
+                        <h4><i class="fas fa-layer-group me-2"></i>Koleksi</h4>
+                    </div>
+                    <div class="widget-body">
+                        <div class="category-list">
                             <button
                                 wire:click="$set('collectionFilter', 'all')"
-                                class="list-group-item list-group-item-action d-flex justify-content-between align-items-center px-0 border-0 {{ $collectionFilter === 'all' ? 'fw-bold text-danger' : '' }}">
-                                <span>Semua Koleksi</span>
-                                <span class="badge {{ $collectionFilter === 'all' ? 'bg-danger' : 'bg-secondary' }} rounded-pill">
-                                    {{ $totalMedia }}
-                                </span>
+                                class="category-item {{ $collectionFilter === 'all' ? 'active' : '' }}"
+                                style="border: none; background: transparent; width: 100%; text-align: left;">
+                                <span><i class="fas fa-layer-group me-2"></i>Semua Koleksi</span>
+                                <span class="category-count">{{ $totalMedia }}</span>
                             </button>
                             @foreach($availableCollections as $collection)
                                 @php
@@ -250,11 +246,10 @@
                                 @endphp
                                 <button
                                     wire:click="$set('collectionFilter', '{{ $collection }}')"
-                                    class="list-group-item list-group-item-action d-flex justify-content-between align-items-center px-0 border-0 {{ $collectionFilter === $collection ? 'fw-bold text-danger' : '' }}">
-                                    <span>{{ ucfirst($collection) }}</span>
-                                    <span class="badge {{ $collectionFilter === $collection ? 'bg-danger' : 'bg-secondary' }} rounded-pill">
-                                        {{ $count }}
-                                    </span>
+                                    class="category-item {{ $collectionFilter === $collection ? 'active' : '' }}"
+                                    style="border: none; background: transparent; width: 100%; text-align: left;">
+                                    <span><i class="fas fa-folder-open me-2"></i>{{ ucfirst($collection) }}</span>
+                                    <span class="category-count">{{ $count }}</span>
                                 </button>
                             @endforeach
                         </div>

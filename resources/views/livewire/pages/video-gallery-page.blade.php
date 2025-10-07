@@ -12,7 +12,7 @@
     />
 
     {{-- Content Section --}}
-    <div class="py-5">
+    <div class="px-4 py-5">
         <div class="row">
             {{-- Main Content --}}
             <div class="col-lg-9 mb-4 mb-lg-0">
@@ -209,33 +209,31 @@
             {{-- Sidebar --}}
             <div class="col-lg-3">
                 {{-- Folder Info Widget --}}
-                <div class="card border-0 shadow-sm rounded mb-4">
-                    <div class="card-body">
-                        <div class="d-flex align-items-center mb-3">
-                            <div class="flex-shrink-0">
-                                <div class="rounded-circle d-flex align-items-center justify-content-center"
-                                     style="width: 60px; height: 60px; background-color: {{ $folder->color ?? '#dc3545' }};">
-                                    <i class="fas fa-{{ $folder->icon ?? 'video' }} fa-2x text-white"></i>
+                <div class="sidebar-widget">
+                    <div class="widget-header">
+                        <h4><i class="fas fa-video me-2"></i>Video Gallery</h4>
+                    </div>
+                    <div class="widget-body">
+                        <div class="info-list">
+                            <div class="info-item">
+                                <span class="info-label"><i class="fas fa-film me-2"></i>Total Video</span>
+                                <span class="info-value">{{ $folder->getMedia($collectionName)->count() }}</span>
+                            </div>
+                            @if($folder->description)
+                                <div class="mt-3">
+                                    <p class="text-muted small mb-0">{{ $folder->description }}</p>
                                 </div>
-                            </div>
-                            <div class="flex-grow-1 ms-3">
-                                <h5 class="mb-1">Video Gallery</h5>
-                                <span class="badge bg-danger">{{ $folder->getMedia($collectionName)->count() }} Video</span>
-                            </div>
+                            @endif
                         </div>
-                        @if($folder->description)
-                            <p class="text-muted small mb-0">{{ $folder->description }}</p>
-                        @endif
                     </div>
                 </div>
 
                 {{-- Quick Stats Widget --}}
-                <div class="card border-0 shadow-sm rounded mb-4">
-                    <div class="card-body">
-                        <h5 class="card-title mb-3">
-                            <i class="fas fa-chart-bar text-danger me-2"></i>
-                            Statistik
-                        </h5>
+                <div class="sidebar-widget">
+                    <div class="widget-header">
+                        <h4><i class="fas fa-chart-bar me-2"></i>Statistik</h4>
+                    </div>
+                    <div class="widget-body">
                         @php
                             $allMedia = $folder->getMedia($collectionName);
                             $today = $allMedia->filter(fn($m) => $m->created_at->isToday())->count();
@@ -244,101 +242,79 @@
                             $total = $allMedia->count();
                         @endphp
 
-                        <div class="mb-3">
-                            <div class="d-flex justify-content-between mb-1">
-                                <small class="text-muted">Hari Ini</small>
-                                <small class="text-dark fw-bold">{{ $today }}</small>
+                        <div class="info-list">
+                            <div class="info-item">
+                                <span class="info-label"><i class="fas fa-calendar-day me-2"></i>Hari Ini</span>
+                                <span class="info-value">{{ $today }}</span>
                             </div>
-                            <div class="progress" style="height: 6px;">
-                                <div class="progress-bar bg-danger" role="progressbar"
-                                     style="width: {{ $total > 0 ? ($today / $total * 100) : 0 }}%"></div>
+                            <div class="info-item">
+                                <span class="info-label"><i class="fas fa-calendar-week me-2"></i>Minggu Ini</span>
+                                <span class="info-value">{{ $thisWeek }}</span>
                             </div>
-                        </div>
-
-                        <div class="mb-3">
-                            <div class="d-flex justify-content-between mb-1">
-                                <small class="text-muted">Minggu Ini</small>
-                                <small class="text-dark fw-bold">{{ $thisWeek }}</small>
-                            </div>
-                            <div class="progress" style="height: 6px;">
-                                <div class="progress-bar bg-danger" role="progressbar"
-                                     style="width: {{ $total > 0 ? ($thisWeek / $total * 100) : 0 }}%"></div>
-                            </div>
-                        </div>
-
-                        <div>
-                            <div class="d-flex justify-content-between mb-1">
-                                <small class="text-muted">Bulan Ini</small>
-                                <small class="text-dark fw-bold">{{ $thisMonth }}</small>
-                            </div>
-                            <div class="progress" style="height: 6px;">
-                                <div class="progress-bar bg-danger" role="progressbar"
-                                     style="width: {{ $total > 0 ? ($thisMonth / $total * 100) : 0 }}%"></div>
+                            <div class="info-item">
+                                <span class="info-label"><i class="fas fa-calendar-alt me-2"></i>Bulan Ini</span>
+                                <span class="info-value">{{ $thisMonth }}</span>
                             </div>
                         </div>
                     </div>
                 </div>
 
                 {{-- Latest Videos Widget --}}
-                <div class="card border-0 shadow-sm rounded">
-                    <div class="card-body">
-                        <h5 class="card-title mb-3">
-                            <i class="fas fa-clock text-danger me-2"></i>
-                            Video Terbaru
-                        </h5>
+                <div class="sidebar-widget">
+                    <div class="widget-header">
+                        <h4><i class="fas fa-clock me-2"></i>Video Terbaru</h4>
+                    </div>
+                    <div class="widget-body">
                         @php
                             $latestItems = $folder->getMedia($collectionName)->sortByDesc('created_at')->take(5);
                         @endphp
 
-                        <div class="list-group list-group-flush">
-                            @forelse($latestItems as $item)
-                                @php
-                                    $videoUrl = $item->custom_properties['video_url'] ?? null;
-                                    $videoId = $videoUrl ? $this->getVideoId($videoUrl) : null;
-                                    $isYouTube = !empty($videoId);
-                                    $isVideo = str_starts_with($item->mime_type, 'video/');
-                                @endphp
-                                <div class="list-group-item px-0 border-bottom" wire:click="showMediaDetail({{ $item->id }})" style="cursor: pointer;">
-                                    <div class="d-flex align-items-center">
-                                        <div class="flex-shrink-0 position-relative" style="width: 60px; height: 40px; background: #000; border-radius: 0.375rem; overflow: hidden;">
-                                            @if($isYouTube)
-                                                <img src="https://img.youtube.com/vi/{{ $videoId }}/default.jpg"
-                                                     alt="{{ $item->name }}"
-                                                     class="w-100 h-100" style="object-fit: cover;">
-                                            @elseif(isset($item->custom_properties['thumbnail']))
-                                                <img src="{{ $item->custom_properties['thumbnail'] }}"
-                                                     alt="{{ $item->name }}"
-                                                     class="w-100 h-100" style="object-fit: cover;">
-                                            @elseif($isVideo)
-                                                <video class="w-100 h-100" style="object-fit: cover; pointer-events: none;" muted>
-                                                    <source src="{{ $item->getUrl() }}" type="{{ $item->mime_type }}">
-                                                </video>
-                                            @else
-                                                <div class="d-flex align-items-center justify-content-center h-100">
-                                                    <i class="fas fa-video text-white opacity-50"></i>
-                                                </div>
-                                            @endif
-                                            <div class="position-absolute top-50 start-50 translate-middle">
-                                                <i class="fas fa-play text-white" style="font-size: 0.75rem; text-shadow: 0 0 3px rgba(0,0,0,0.8);"></i>
-                                            </div>
+                        @forelse($latestItems as $item)
+                            @php
+                                $videoUrl = $item->custom_properties['video_url'] ?? null;
+                                $videoId = $videoUrl ? $this->getVideoId($videoUrl) : null;
+                                $isYouTube = !empty($videoId);
+                                $isVideo = str_starts_with($item->mime_type, 'video/');
+                            @endphp
+                            <a href="javascript:void(0)" wire:click="showMediaDetail({{ $item->id }})" class="news-item">
+                                <div class="news-thumbnail">
+                                    @if($isYouTube)
+                                        <img src="https://img.youtube.com/vi/{{ $videoId }}/default.jpg"
+                                             alt="{{ $item->custom_properties['title'] ?? $item->name }}">
+                                    @elseif(isset($item->custom_properties['thumbnail']))
+                                        <img src="{{ $item->custom_properties['thumbnail'] }}"
+                                             alt="{{ $item->custom_properties['title'] ?? $item->name }}">
+                                    @elseif($isVideo)
+                                        <video style="pointer-events: none;" muted>
+                                            <source src="{{ $item->getUrl() }}" type="{{ $item->mime_type }}">
+                                        </video>
+                                    @else
+                                        <div class="d-flex align-items-center justify-content-center h-100" style="background: #000;">
+                                            <i class="fas fa-video text-white"></i>
                                         </div>
-                                        <div class="flex-grow-1 ms-3">
-                                            <h6 class="mb-1 small">{{ Str::limit($item->custom_properties['title'] ?? $item->name, 40) }}</h6>
-                                            <small class="text-muted">{{ $item->created_at->diffForHumans() }}</small>
-                                        </div>
+                                    @endif
+                                    <div class="position-absolute top-50 start-50 translate-middle">
+                                        <i class="fas fa-play text-white" style="font-size: 0.75rem; text-shadow: 0 0 3px rgba(0,0,0,0.8);"></i>
                                     </div>
                                 </div>
-                            @empty
-                                <p class="text-muted small mb-0">Belum ada video tersedia</p>
-                            @endforelse
-                        </div>
+                                <div class="news-content">
+                                    <h6 class="news-title">{{ Str::limit($item->custom_properties['title'] ?? $item->name, 45) }}</h6>
+                                    <div class="news-meta">
+                                        <i class="far fa-clock me-1"></i>
+                                        {{ $item->created_at->diffForHumans() }}
+                                    </div>
+                                </div>
+                            </a>
+                        @empty
+                            <p class="text-muted small mb-0">Belum ada video tersedia</p>
+                        @endforelse
                     </div>
                 </div>
             </div>
         </div>
     </div>
 
-    {{-- Video Modal - Minimalist & Clean --}}
+    {{-- Video Modal - Modern Style --}}
     @if($detailMedia)
         @php
             // Check if video_url exists in custom_properties (YouTube)
@@ -346,21 +322,18 @@
             $videoId = $videoUrl ? $this->getVideoId($videoUrl) : null;
             $isYouTube = !empty($videoId);
             $isLocalVideo = str_starts_with($detailMedia->mime_type, 'video/');
+            $uniqueId = 'video_' . $detailMedia->id . '_' . time();
         @endphp
 
-        <div class="modal fade show d-block" tabindex="-1" style="background: rgba(0, 0, 0, 0.85);">
-            <div class="modal-dialog modal-xl modal-dialog-centered" style="pointer-events: none;">
-                <div class="modal-content border-0 shadow-2xl" style="background: #ffffff; border-radius: 16px; overflow: hidden; pointer-events: auto;">
-                    {{-- Modal Header --}}
-                    <div class="modal-header border-0 px-4 pt-4 pb-3" style="background: #ffffff;">
-                        <div class="flex-grow-1">
-                            <h5 class="modal-title fw-bold mb-1 text-dark">{{ $detailMedia->custom_properties['title'] ?? $detailMedia->name }}</h5>
-                            <small class="text-muted">
-                                <i class="far fa-calendar me-1"></i>
-                                {{ $detailMedia->created_at->format('d F Y') }}
-                            </small>
-                        </div>
-                        <button type="button" class="btn-close" wire:click="closeMediaDetail"></button>
+        <div class="modal fade show d-block" tabindex="-1" style="background: rgba(0, 0, 0, 0.7);" id="videoModal{{ $detailMedia->id }}">
+            <div class="modal-dialog modal-xl modal-dialog-centered modal-dialog-scrollable">
+                <div class="modal-content border-0 shadow-lg" style="border-radius: 1rem; overflow: hidden;">
+                    {{-- Modal Header with Gradient --}}
+                    <div class="modal-header border-0" style="background: linear-gradient(135deg, #05AC69 0%, #048B56 100%); color: white; padding: 1.5rem;">
+                        <h5 class="modal-title fw-bold mb-0">
+                            <i class="fas fa-video me-2"></i>{{ $detailMedia->custom_properties['title'] ?? $detailMedia->name }}
+                        </h5>
+                        <button type="button" class="btn-close btn-close-white" wire:click="closeMediaDetail"></button>
                     </div>
 
                     <div class="modal-body p-0">
@@ -369,19 +342,20 @@
                             {{-- YouTube Video --}}
                             <div class="ratio ratio-16x9" style="background: #000;">
                                 <iframe
-                                    src="https://www.youtube.com/embed/{{ $videoId }}?autoplay=1"
+                                    src="https://www.youtube.com/embed/{{ $videoId }}?autoplay=1&rel=0&modestbranding=1"
                                     title="{{ $detailMedia->custom_properties['title'] ?? $detailMedia->name }}"
                                     frameborder="0"
-                                    allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-                                    allowfullscreen>
+                                    allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+                                    allowfullscreen
+                                    loading="lazy"
+                                    style="border: none;">
                                 </iframe>
                             </div>
                         @elseif($isLocalVideo)
-                            {{-- Direct Video File --}}
+                            {{-- Direct Video File - Sama persis seperti Filament --}}
                             <div class="ratio ratio-16x9" style="background: #000;">
-                                <video controls autoplay class="w-100 h-100" style="object-fit: contain;">
+                                <video class="w-100 h-100" controls style="object-fit: contain;">
                                     <source src="{{ $detailMedia->getUrl() }}" type="{{ $detailMedia->mime_type }}">
-                                    Browser Anda tidak mendukung pemutaran video.
                                 </video>
                             </div>
                         @else
@@ -390,18 +364,42 @@
                                 <i class="fas fa-video fa-5x text-muted mb-3"></i>
                                 <h5 class="text-dark">Video tidak dapat diputar</h5>
                                 <p class="text-muted">Format video tidak didukung</p>
-                                <small class="text-muted d-block mt-3">
-                                    MIME Type: {{ $detailMedia->mime_type }}<br>
-                                    URL: {{ $detailMedia->getUrl() }}<br>
-                                    Video URL: {{ $videoUrl ?? 'N/A' }}
-                                </small>
                             </div>
                         @endif
 
+                        {{-- Video Info Section --}}
+                        <div class="px-4 py-3 bg-light border-top">
+                            <div class="row g-2">
+                                <div class="col-md-6">
+                                    <small class="text-muted d-block mb-1"><i class="far fa-calendar me-1"></i>Tanggal Upload</small>
+                                    <strong class="text-dark" style="font-size: 0.9rem;">{{ $detailMedia->created_at->format('d F Y') }}</strong>
+                                </div>
+                                @if(isset($detailMedia->custom_properties['category']))
+                                    <div class="col-md-6">
+                                        <small class="text-muted d-block mb-1"><i class="fas fa-tag me-1"></i>Kategori</small>
+                                        <strong class="text-dark" style="font-size: 0.9rem;">{{ $detailMedia->custom_properties['category'] }}</strong>
+                                    </div>
+                                @endif
+                                @if(isset($detailMedia->custom_properties['duration']))
+                                    <div class="col-md-6">
+                                        <small class="text-muted d-block mb-1"><i class="far fa-clock me-1"></i>Durasi</small>
+                                        <strong class="text-dark" style="font-size: 0.9rem;">{{ $this->formatDuration($detailMedia->custom_properties['duration']) }}</strong>
+                                    </div>
+                                @endif
+                                @if(isset($detailMedia->custom_properties['views']))
+                                    <div class="col-md-6">
+                                        <small class="text-muted d-block mb-1"><i class="far fa-eye me-1"></i>Dilihat</small>
+                                        <strong class="text-dark" style="font-size: 0.9rem;">{{ number_format($detailMedia->custom_properties['views']) }} kali</strong>
+                                    </div>
+                                @endif
+                            </div>
+                        </div>
+
                         {{-- Description Section --}}
                         @if(isset($detailMedia->custom_properties['description']))
-                            <div class="px-4 pt-4 pb-3">
-                                <p class="text-black mb-0 lh-lg" style="font-size: 0.95rem;">
+                            <div class="px-4 pt-3 pb-3">
+                                <h6 class="fw-bold mb-2"><i class="fas fa-info-circle me-2" style="color: #05AC69;"></i>Deskripsi</h6>
+                                <p class="text-dark mb-0" style="font-size: 0.9rem; line-height: 1.6;">
                                     {{ $detailMedia->custom_properties['description'] }}
                                 </p>
                             </div>
@@ -409,20 +407,17 @@
                     </div>
 
                     {{-- Modal Footer --}}
-                    <div class="modal-footer border-0 px-4 pb-4 pt-2" style="background: #ffffff;">
-                        <button type="button" class="btn btn-light px-4 py-2" wire:click="closeMediaDetail">
-                            <i class="fas fa-times me-2"></i>
-                            Tutup
+                    <div class="modal-footer border-0 bg-light">
+                        <button type="button" class="btn btn-secondary btn-sm" wire:click="closeMediaDetail">
+                            <i class="fas fa-times me-1"></i>Tutup
                         </button>
                         @if($videoUrl)
-                            <a href="{{ $videoUrl }}" target="_blank" class="btn px-4 py-2 text-white" style="background: #05AC69;">
-                                <i class="fas fa-external-link-alt me-2"></i>
-                                Buka di Tab Baru
+                            <a href="{{ $videoUrl }}" target="_blank" class="btn btn-sm text-white" style="background: #05AC69;">
+                                <i class="fas fa-external-link-alt me-1"></i>Buka di YouTube
                             </a>
                         @elseif($isLocalVideo)
-                            <a href="{{ $detailMedia->getUrl() }}" download class="btn px-4 py-2 text-white" style="background: #05AC69;">
-                                <i class="fas fa-download me-2"></i>
-                                Download Video
+                            <a href="{{ $detailMedia->getUrl() }}" download class="btn btn-sm text-white" style="background: #05AC69;">
+                                <i class="fas fa-download me-1"></i>Download
                             </a>
                         @endif
                     </div>

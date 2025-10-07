@@ -326,6 +326,7 @@ class PostResource extends Resource implements HasShieldPermissions
                                     ->searchable(['firstname', 'lastname'])
                                     ->preload()
                                     ->required()
+                                    ->default(fn() => Auth::id())
                                     ->disabled(function (?Post $record) {
                                         $user = Auth::user();
                                         if (!$user) return true;
