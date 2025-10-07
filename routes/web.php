@@ -6,6 +6,7 @@ use App\Livewire\Pages\GalleryPage;
 use App\Livewire\Pages\PengumumanPage;
 use App\Livewire\Pages\InfografisPage;
 use App\Livewire\Pages\VideoGalleryPage;
+use App\Livewire\Pages\ImageGalleryPage;
 use Illuminate\Support\Facades\Route;
 use Lab404\Impersonate\Services\ImpersonateManager;
 
@@ -76,6 +77,7 @@ Route::get('/contact', function () {
 // Gallery Routes - Must be BEFORE dynamic pages
 Route::get('/galeri', GalleryPage::class)->name('gallery');
 Route::get('/galeri/video', VideoGalleryPage::class)->name('gallery.video');
+Route::get('/galeri/gambar', ImageGalleryPage::class)->name('gallery.image');
 
 // Information Routes - Must be BEFORE dynamic pages
 Route::get('/informasi/pengumuman', PengumumanPage::class)->name('informasi.pengumuman');
