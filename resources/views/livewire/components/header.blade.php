@@ -56,7 +56,7 @@
                 <div class="col-auto col-lg-2 col-xxl-2 me-auto me-lg-0">
                     <div class="header-logo" data-clone-element-to="#offCanvasLogo">
                         <a href="demo-accounting-1.html">
-                            <img alt="Porto" width="131" height="27" src="img/demos/accounting-1/logo.png">
+                            <img alt="Logo kejati-kaltara" width="40" height="38" src="{{ asset('img/logo-kejati.png') }}">
                         </a>
                     </div>
                 </div>

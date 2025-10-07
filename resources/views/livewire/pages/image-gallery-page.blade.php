@@ -12,7 +12,7 @@
     />
 
     {{-- Content Section --}}
-    <div class="container py-5">
+    <div class="py-5">
         <div class="row">
             {{-- Main Content --}}
             <div class="col-lg-9 mb-4 mb-lg-0">
@@ -294,7 +294,7 @@
                         {{-- Description Section --}}
                         @if(isset($detailMedia->custom_properties['description']))
                             <div class="px-4 pt-4 pb-3">
-                                <p class="text-secondary mb-0 lh-lg" style="font-size: 0.95rem;">
+                                <p class="text-black mb-0 lh-lg" style="font-size: 0.95rem;">
                                     {{ $detailMedia->custom_properties['description'] }}
                                 </p>
                             </div>

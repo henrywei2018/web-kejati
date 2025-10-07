@@ -7,6 +7,9 @@ use App\Livewire\Pages\PengumumanPage;
 use App\Livewire\Pages\InfografisPage;
 use App\Livewire\Pages\VideoGalleryPage;
 use App\Livewire\Pages\ImageGalleryPage;
+use App\Livewire\Pages\PublikasiPage;
+use App\Livewire\Pages\BeritaListPage;
+use App\Livewire\Pages\BeritaDetailPage;
 use Illuminate\Support\Facades\Route;
 use Lab404\Impersonate\Services\ImpersonateManager;
 
@@ -82,6 +85,12 @@ Route::get('/galeri/gambar', ImageGalleryPage::class)->name('gallery.image');
 // Information Routes - Must be BEFORE dynamic pages
 Route::get('/informasi/pengumuman', PengumumanPage::class)->name('informasi.pengumuman');
 Route::get('/informasi/infografis', InfografisPage::class)->name('informasi.infografis');
+Route::get('/informasi/publikasi', PublikasiPage::class)->name('informasi.publikasi');
+
+// Berita (News) Routes - Must be BEFORE dynamic pages
+Route::get('/berita', BeritaListPage::class)->name('berita.index');
+Route::get('/berita/kategori/{categorySlug}', BeritaListPage::class)->name('berita.category');
+Route::get('/berita/{slug}', BeritaDetailPage::class)->name('berita.show');
 
 // Dynamic Page Routes - Must be LAST to act as catch-all
 // Parent page route: /{parent_slug}

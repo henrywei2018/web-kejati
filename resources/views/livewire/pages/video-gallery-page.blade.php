@@ -12,7 +12,7 @@
     />
 
     {{-- Content Section --}}
-    <div class="container py-5">
+    <div class="py-5">
         <div class="row">
             {{-- Main Content --}}
             <div class="col-lg-9 mb-4 mb-lg-0">
@@ -341,12 +341,16 @@
     {{-- Video Modal - Minimalist & Clean --}}
     @if($detailMedia)
         @php
-            $videoUrl = $detailMedia->custom_properties['video_url'] ?? $detailMedia->getUrl();
-            $videoId = $this->getVideoId($videoUrl);
+            // Check if video_url exists in custom_properties (YouTube)
+            $videoUrl = $detailMedia->custom_properties['video_url'] ?? null;
+            $videoId = $videoUrl ? $this->getVideoId($videoUrl) : null;
+            $isYouTube = !empty($videoId);
+            $isLocalVideo = str_starts_with($detailMedia->mime_type, 'video/');
         @endphp
-        <div class="modal fade show" style="display: block; background: rgba(0, 0, 0, 0.85);" tabindex="-1" wire:click.self="closeMediaDetail">
-            <div class="modal-dialog modal-xl modal-dialog-centered">
-                <div class="modal-content border-0 shadow-2xl" style="background: #ffffff; border-radius: 16px; overflow: hidden;">
+
+        <div class="modal fade show d-block" tabindex="-1" style="background: rgba(0, 0, 0, 0.85);">
+            <div class="modal-dialog modal-xl modal-dialog-centered" style="pointer-events: none;">
+                <div class="modal-content border-0 shadow-2xl" style="background: #ffffff; border-radius: 16px; overflow: hidden; pointer-events: auto;">
                     {{-- Modal Header --}}
                     <div class="modal-header border-0 px-4 pt-4 pb-3" style="background: #ffffff;">
                         <div class="flex-grow-1">
@@ -361,7 +365,7 @@
 
                     <div class="modal-body p-0">
                         {{-- Video Player --}}
-                        @if($videoId)
+                        @if($isYouTube)
                             {{-- YouTube Video --}}
                             <div class="ratio ratio-16x9" style="background: #000;">
                                 <iframe
@@ -372,20 +376,25 @@
                                     allowfullscreen>
                                 </iframe>
                             </div>
-                        @elseif(str_starts_with($detailMedia->mime_type, 'video/'))
+                        @elseif($isLocalVideo)
                             {{-- Direct Video File --}}
-                            <div class="position-relative" style="background: #05AC69; padding: 2rem;">
-                                <video controls class="w-100 rounded shadow-lg" style="max-height: 70vh;">
+                            <div class="ratio ratio-16x9" style="background: #000;">
+                                <video controls autoplay class="w-100 h-100" style="object-fit: contain;">
                                     <source src="{{ $detailMedia->getUrl() }}" type="{{ $detailMedia->mime_type }}">
                                     Browser Anda tidak mendukung pemutaran video.
                                 </video>
                             </div>
                         @else
-                            {{-- Fallback --}}
-                            <div class="text-center py-5" style="background: #05AC69;">
-                                <i class="fas fa-video fa-5x text-white opacity-50 mb-3"></i>
-                                <h5 class="text-white">Video tidak dapat diputar</h5>
-                                <p class="text-white opacity-75">Format video tidak didukung atau URL tidak valid</p>
+                            {{-- Fallback - Debug Info --}}
+                            <div class="text-center py-5" style="background: #f8f9fa;">
+                                <i class="fas fa-video fa-5x text-muted mb-3"></i>
+                                <h5 class="text-dark">Video tidak dapat diputar</h5>
+                                <p class="text-muted">Format video tidak didukung</p>
+                                <small class="text-muted d-block mt-3">
+                                    MIME Type: {{ $detailMedia->mime_type }}<br>
+                                    URL: {{ $detailMedia->getUrl() }}<br>
+                                    Video URL: {{ $videoUrl ?? 'N/A' }}
+                                </small>
                             </div>
                         @endif
 
@@ -409,6 +418,11 @@
                             <a href="{{ $videoUrl }}" target="_blank" class="btn px-4 py-2 text-white" style="background: #05AC69;">
                                 <i class="fas fa-external-link-alt me-2"></i>
                                 Buka di Tab Baru
+                            </a>
+                        @elseif($isLocalVideo)
+                            <a href="{{ $detailMedia->getUrl() }}" download class="btn px-4 py-2 text-white" style="background: #05AC69;">
+                                <i class="fas fa-download me-2"></i>
+                                Download Video
                             </a>
                         @endif
                     </div>
