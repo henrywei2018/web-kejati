@@ -361,38 +361,38 @@
 
                     <div class="modal-body p-0">
                         {{-- Video Player --}}
-                        <div style="background: #05AC69;">
-                            @if($videoId)
-                                {{-- YouTube Video --}}
-                                <div class="ratio ratio-16x9">
-                                    <iframe
-                                        src="https://www.youtube.com/embed/{{ $videoId }}?autoplay=1"
-                                        title="{{ $detailMedia->custom_properties['title'] ?? $detailMedia->name }}"
-                                        frameborder="0"
-                                        allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-                                        allowfullscreen>
-                                    </iframe>
-                                </div>
-                            @elseif(str_starts_with($detailMedia->mime_type, 'video/'))
-                                {{-- Direct Video File --}}
-                                <video controls class="w-100" style="max-height: 70vh; background: #000;">
+                        @if($videoId)
+                            {{-- YouTube Video --}}
+                            <div class="ratio ratio-16x9" style="background: #000;">
+                                <iframe
+                                    src="https://www.youtube.com/embed/{{ $videoId }}?autoplay=1"
+                                    title="{{ $detailMedia->custom_properties['title'] ?? $detailMedia->name }}"
+                                    frameborder="0"
+                                    allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                                    allowfullscreen>
+                                </iframe>
+                            </div>
+                        @elseif(str_starts_with($detailMedia->mime_type, 'video/'))
+                            {{-- Direct Video File --}}
+                            <div class="position-relative" style="background: #05AC69; padding: 2rem;">
+                                <video controls class="w-100 rounded shadow-lg" style="max-height: 70vh;">
                                     <source src="{{ $detailMedia->getUrl() }}" type="{{ $detailMedia->mime_type }}">
                                     Browser Anda tidak mendukung pemutaran video.
                                 </video>
-                            @else
-                                {{-- Fallback --}}
-                                <div class="text-center py-5">
-                                    <i class="fas fa-video fa-5x text-white opacity-50 mb-3"></i>
-                                    <h5 class="text-white">Video tidak dapat diputar</h5>
-                                    <p class="text-white opacity-75">Format video tidak didukung atau URL tidak valid</p>
-                                </div>
-                            @endif
-                        </div>
+                            </div>
+                        @else
+                            {{-- Fallback --}}
+                            <div class="text-center py-5" style="background: #05AC69;">
+                                <i class="fas fa-video fa-5x text-white opacity-50 mb-3"></i>
+                                <h5 class="text-white">Video tidak dapat diputar</h5>
+                                <p class="text-white opacity-75">Format video tidak didukung atau URL tidak valid</p>
+                            </div>
+                        @endif
 
                         {{-- Description Section --}}
                         @if(isset($detailMedia->custom_properties['description']))
                             <div class="px-4 pt-4 pb-3">
-                                <p class="text-secondary mb-0 lh-lg" style="font-size: 0.95rem;">
+                                <p class="text-black mb-0 lh-lg" style="font-size: 0.95rem;">
                                     {{ $detailMedia->custom_properties['description'] }}
                                 </p>
                             </div>
