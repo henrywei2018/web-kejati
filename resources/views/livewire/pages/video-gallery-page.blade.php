@@ -12,7 +12,7 @@
     />
 
     {{-- Content Section --}}
-    <div class="py-5">
+    <div class="container py-5">
         <div class="row">
             {{-- Main Content --}}
             <div class="col-lg-9 mb-4 mb-lg-0">
