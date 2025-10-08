@@ -6,8 +6,7 @@ use Livewire\Component;
 use App\Models\Blog\Post;
 use App\Models\Blog\Category as BlogCategory;
 use App\Models\Banner\Content as Banner;
-use TomatoPHP\FilamentMediaManager\Models\Folder;
-use TomatoPHP\FilamentMediaManager\Models\Media;
+use Spatie\MediaLibrary\MediaCollections\Models\Media;
 use Illuminate\Support\Collection;
 
 class HomePage extends Component
@@ -21,11 +20,21 @@ class HomePage extends Component
     public $latestPosts;
     public $featuredPosts;
     public $popularPosts;
-    
-    // TomatoPHP Collections - corrected naming
+
+    // Spatie Media Collections
     public $latestInfografis;  // from 'infografis' collection
-    public $publikasi;         // from 'laporan-tahunan' collection  
+    public $publikasi;         // from 'publikasi' collection
     public $pengumuman;         // from 'pengumuman' collection
+
+    // Employees
+    public $employees;
+    public $kepalaKejaksaan;
+
+    // Services/Layanan
+    public $layananServices;
+
+    // Modal state
+    public $detailMedia = null;
 
     public $stats = [
         ['number' => '500+', 'label' => 'Happy Clients'],
@@ -46,31 +55,35 @@ class HomePage extends Component
         $this->loadLatestInfografis();
         $this->loadPublikasi();
         $this->loadPengumuman();
+        $this->loadEmployees();
+        $this->loadKepalaKejaksaan();
+        $this->loadLayananServices();
     }
 
     private function loadHeroBanner()
     {
-        // Load hero banner from banner_contents table
-        $this->heroBanner = Banner::with('category')
-            ->where('is_active', true)
-            ->whereHas('category', function ($query) {
-                $query->where('slug', 'hero-banner')
-                      ->where('is_active', true);
-            })
-            ->where(function ($query) {
-                $query->whereNull('start_date')
-                      ->orWhere('start_date', '<=', now());
-            })
-            ->where(function ($query) {
-                $query->whereNull('end_date')
-                      ->orWhere('end_date', '>=', now());
-            })
-            ->orderBy('sort')
-            ->first();
+        // Load hero banners from main-hero category
+        $this->heroBanner = collect([]);
 
-        if ($this->heroBanner) {
-            $this->heroTitle = $this->heroBanner->title ?? $this->heroTitle;
-            $this->heroSubtitle = $this->heroBanner->description ?? $this->heroSubtitle;
+        try {
+            // Find main-hero category
+            $mainHeroCategory = \App\Models\Banner\Category::active()
+                ->where('slug', 'main-hero')
+                ->first();
+
+            if ($mainHeroCategory) {
+                // Get all active banner contents from main-hero category
+                $banners = Banner::active()
+                    ->where('banner_category_id', $mainHeroCategory->id)
+                    ->orderBy('sort', 'asc')
+                    ->orderBy('created_at', 'desc')
+                    ->get();
+
+                $this->heroBanner = $banners;
+            }
+        } catch (\Exception $e) {
+            logger()->error('Error loading main-hero banners: ' . $e->getMessage());
+            $this->heroBanner = collect([]);
         }
     }
 
@@ -106,10 +119,10 @@ class HomePage extends Component
     private function loadLatestPosts()
     {
         $this->latestPosts = collect([]);
-        
+
         try {
             $posts = Post::with(['category', 'author', 'media'])
-                ->where('is_published', true)
+                ->where('status', 'published')
                 ->where('published_at', '<=', now())
                 ->orderBy('published_at', 'desc')
                 ->take(10)
@@ -130,8 +143,8 @@ class HomePage extends Component
                     'author' => $post->author ? [
                         'name' => $post->author->name ?? trim(($post->author->firstname ?? '') . ' ' . ($post->author->lastname ?? ''))
                     ] : null,
-                    'featured_image' => $post->getFirstMediaUrl() ?: null,
-                    'featured_image_thumb' => $post->getFirstMediaUrl('thumb') ?: null,
+                    'featured_image' => $post->getFirstMediaUrl('featured') ?: null,
+                    'featured_image_thumb' => $post->getFirstMediaUrl('featured', 'thumbnail') ?: null,
                 ];
             });
         } catch (\Exception $e) {
@@ -143,10 +156,10 @@ class HomePage extends Component
     private function loadFeaturedPosts()
     {
         $this->featuredPosts = collect([]);
-        
+
         try {
             $posts = Post::with(['category', 'author', 'media'])
-                ->where('is_published', true)
+                ->where('status', 'published')
                 ->where('published_at', '<=', now())
                 ->where('is_featured', true)
                 ->orderBy('published_at', 'desc')
@@ -168,8 +181,8 @@ class HomePage extends Component
                     'author' => $post->author ? [
                         'name' => $post->author->name ?? trim(($post->author->firstname ?? '') . ' ' . ($post->author->lastname ?? ''))
                     ] : null,
-                    'featured_image' => $post->getFirstMediaUrl() ?: null,
-                    'featured_image_thumb' => $post->getFirstMediaUrl('thumb') ?: null,
+                    'featured_image' => $post->getFirstMediaUrl('featured') ?: null,
+                    'featured_image_thumb' => $post->getFirstMediaUrl('featured', 'thumbnail') ?: null,
                 ];
             });
         } catch (\Exception $e) {
@@ -181,10 +194,10 @@ class HomePage extends Component
     private function loadPopularPosts()
     {
         $this->popularPosts = collect([]);
-        
+
         try {
             $posts = Post::with(['category', 'author', 'media'])
-                ->where('is_published', true)
+                ->where('status', 'published')
                 ->where('published_at', '<=', now())
                 ->orderBy('view_count', 'desc')
                 ->take(10)
@@ -205,8 +218,8 @@ class HomePage extends Component
                     'author' => $post->author ? [
                         'name' => $post->author->name ?? trim(($post->author->firstname ?? '') . ' ' . ($post->author->lastname ?? ''))
                     ] : null,
-                    'featured_image' => $post->getFirstMediaUrl() ?: null,
-                    'featured_image_thumb' => $post->getFirstMediaUrl('thumb') ?: null,
+                    'featured_image' => $post->getFirstMediaUrl('featured') ?: null,
+                    'featured_image_thumb' => $post->getFirstMediaUrl('featured', 'thumbnail') ?: null,
                 ];
             });
         } catch (\Exception $e) {
@@ -216,41 +229,34 @@ class HomePage extends Component
     }
 
     /**
-     * Load Infografis from TomatoPHP 'infografis' collection
+     * Load Infografis from Spatie Media Library 'infografis' collection
      */
     private function loadLatestInfografis()
     {
         $this->latestInfografis = collect([]);
-        
+
         try {
-            // Get the infografis folder by collection name
-            $infografisFolder = Folder::where('collection', 'infografis')
-                ->where('is_hidden', false)
-                ->first();
+            // Get media files from the 'infografis' collection using Spatie Media Library
+            $mediaFiles = Media::where('collection_name', 'infografis')
+                ->orderBy('created_at', 'desc')
+                ->take(6)
+                ->get();
 
-            if ($infografisFolder) {
-                // Get media files from the infografis collection
-                $mediaFiles = Media::where('folder_id', $infografisFolder->id)
-                    ->orderBy('created_at', 'desc')
-                    ->take(6)
-                    ->get();
-
-                $this->latestInfografis = $mediaFiles->map(function ($media) {
-                    return [
-                        'id' => $media->id,
-                        'title' => $media->name ?? 'Untitled Infographic',
-                        'judul' => $media->alt ?? $media->name ?? 'Untitled Infographic',
-                        'slug' => $this->generateSlug($media),
-                        'description' => $media->description ?? '',
-                        'created_at' => $media->created_at,
-                        'file_url' => $media->getUrl(),
-                        'thumb_url' => $this->getMediaThumb($media),
-                        'mime_type' => $media->mime_type,
-                        'size' => $media->size,
-                        'is_image' => str_starts_with($media->mime_type, 'image/'),
-                    ];
-                });
-            }
+            $this->latestInfografis = $mediaFiles->map(function ($media) {
+                return [
+                    'id' => $media->id,
+                    'title' => $media->getCustomProperty('title') ?? $media->name ?? 'Untitled Infographic',
+                    'judul' => $media->getCustomProperty('title') ?? $media->name ?? 'Untitled Infographic',
+                    'slug' => $this->generateSlug($media),
+                    'description' => $media->getCustomProperty('description') ?? '',
+                    'created_at' => $media->created_at,
+                    'file_url' => $media->getUrl(),
+                    'thumb_url' => $this->getMediaThumb($media),
+                    'mime_type' => $media->mime_type,
+                    'size' => $media->size,
+                    'is_image' => str_starts_with($media->mime_type ?? '', 'image/'),
+                ];
+            });
         } catch (\Exception $e) {
             logger()->error('Error loading infografis: ' . $e->getMessage());
             $this->latestInfografis = collect([]);
@@ -258,41 +264,34 @@ class HomePage extends Component
     }
 
     /**
-     * Load Publikasi from TomatoPHP 'laporan-tahunan' collection
+     * Load Publikasi from Spatie Media Library 'laporan-publikasi' collection
      */
     private function loadPublikasi()
     {
         $this->publikasi = collect([]);
-        
+
         try {
-            // Get the laporan-tahunan folder by collection name
-            $publikasiFolder = Folder::where('collection', 'laporan-tahunan')
-                ->where('is_hidden', false)
-                ->first();
+            // Get media files from the 'laporan-publikasi' collection using Spatie Media Library
+            $mediaFiles = Media::where('collection_name', 'laporan-publikasi')
+                ->orderBy('created_at', 'desc')
+                ->take(6)
+                ->get();
 
-            if ($publikasiFolder) {
-                // Get media files from the laporan-tahunan collection
-                $mediaFiles = Media::where('folder_id', $publikasiFolder->id)
-                    ->orderBy('created_at', 'desc')
-                    ->take(6)
-                    ->get();
-
-                $this->publikasi = $mediaFiles->map(function ($media) {
-                    return [
-                        'id' => $media->id,
-                        'title' => $media->name ?? 'Untitled Publication',
-                        'judul' => $media->alt ?? $media->name ?? 'Untitled Publication',
-                        'slug' => $this->generateSlug($media),
-                        'description' => $media->description ?? '',
-                        'publication_date' => $media->created_at->format('F Y'),
-                        'created_at' => $media->created_at,
-                        'file_url' => $media->getUrl(),
-                        'mime_type' => $media->mime_type,
-                        'size' => $media->size,
-                        'is_pdf' => $media->mime_type === 'application/pdf',
-                    ];
-                });
-            }
+            $this->publikasi = $mediaFiles->map(function ($media) {
+                return [
+                    'id' => $media->id,
+                    'title' => $media->getCustomProperty('title') ?? $media->name ?? 'Untitled Publication',
+                    'judul' => $media->getCustomProperty('title') ?? $media->name ?? 'Untitled Publication',
+                    'slug' => $this->generateSlug($media),
+                    'description' => $media->getCustomProperty('description') ?? '',
+                    'publication_date' => $media->created_at->format('F Y'),
+                    'created_at' => $media->created_at,
+                    'file_url' => $media->getUrl(),
+                    'mime_type' => $media->mime_type,
+                    'size' => $media->size,
+                    'is_pdf' => $media->mime_type === 'application/pdf',
+                ];
+            });
         } catch (\Exception $e) {
             logger()->error('Error loading publikasi: ' . $e->getMessage());
             $this->publikasi = collect([]);
@@ -300,49 +299,42 @@ class HomePage extends Component
     }
 
     /**
-     * Load Daftar Informasi Publik from TomatoPHP 'pengumuman' collection
+     * Load Pengumuman from Spatie Media Library 'pengumuman' collection
      */
     private function loadPengumuman()
     {
         $this->pengumuman = collect([]);
-        
+
         try {
-            // Get the pengumuman folder by collection name
-            $pengumumanFolder = Folder::where('collection', 'pengumuman')
-                ->where('is_hidden', false)
-                ->first();
+            // Get media files from the 'pengumuman' collection using Spatie Media Library
+            $mediaFiles = Media::where('collection_name', 'pengumuman')
+                ->orderBy('created_at', 'desc')
+                ->take(6)
+                ->get();
 
-            if ($pengumumanFolder) {
-                // Get media files from the pengumuman collection
-                $mediaFiles = Media::where('folder_id', $pengumumanFolder->id)
-                    ->orderBy('created_at', 'desc')
-                    ->take(6)
-                    ->get();
-
-                $this->pengumuman = $mediaFiles->map(function ($media) {
-                    return [
-                        'id' => $media->id,
-                        'title' => $media->name ?? 'Untitled Document',
-                        'judul' => $media->alt ?? $media->name ?? 'Untitled Document',
-                        'slug' => $this->generateSlug($media),
-                        'description' => $media->description ?? '',
-                        'publication_date' => $media->created_at->format('F Y'),
-                        'created_at' => $media->created_at,
-                        'file_url' => $media->getUrl(),
-                        'mime_type' => $media->mime_type,
-                        'size' => $media->size,
-                        'is_pdf' => $media->mime_type === 'application/pdf',
-                    ];
-                });
-            }
+            $this->pengumuman = $mediaFiles->map(function ($media) {
+                return [
+                    'id' => $media->id,
+                    'title' => $media->getCustomProperty('title') ?? $media->name ?? 'Untitled Document',
+                    'judul' => $media->getCustomProperty('title') ?? $media->name ?? 'Untitled Document',
+                    'slug' => $this->generateSlug($media),
+                    'description' => $media->getCustomProperty('description') ?? '',
+                    'publication_date' => $media->created_at->format('F Y'),
+                    'created_at' => $media->created_at,
+                    'file_url' => $media->getUrl(),
+                    'mime_type' => $media->mime_type,
+                    'size' => $media->size,
+                    'is_pdf' => $media->mime_type === 'application/pdf',
+                ];
+            });
         } catch (\Exception $e) {
-            logger()->error('Error loading daftar DIP: ' . $e->getMessage());
+            logger()->error('Error loading pengumuman: ' . $e->getMessage());
             $this->pengumuman = collect([]);
         }
     }
 
     /**
-     * Helper Methods for TomatoPHP Media
+     * Helper Methods for Spatie Media Library
      */
     private function generateSlug($media)
     {
@@ -430,6 +422,106 @@ class HomePage extends Component
             }
         } catch (\Exception $e) {
             logger()->error('Error tracking media download: ' . $e->getMessage());
+        }
+    }
+
+    /**
+     * Show media detail in modal
+     */
+    public function showMediaDetail($mediaId)
+    {
+        $this->detailMedia = Media::find($mediaId);
+    }
+
+    /**
+     * Close media detail modal
+     */
+    public function closeMediaDetail()
+    {
+        $this->detailMedia = null;
+    }
+
+    /**
+     * Format bytes to human readable size
+     */
+    public function formatBytes($bytes, $precision = 2)
+    {
+        $units = ['B', 'KB', 'MB', 'GB'];
+        $bytes = max($bytes, 0);
+        $pow = floor(($bytes ? log($bytes) : 0) / log(1024));
+        $pow = min($pow, count($units) - 1);
+        $bytes /= pow(1024, $pow);
+
+        return round($bytes, $precision) . ' ' . $units[$pow];
+    }
+
+    /**
+     * Load Featured Employees
+     */
+    private function loadEmployees()
+    {
+        $this->employees = collect([]);
+
+        try {
+            // Get featured/active employees
+            $employees = \App\Models\Employee::active()
+                ->orderBy('created_at', 'desc')
+                ->take(8)
+                ->get();
+
+            $this->employees = $employees;
+        } catch (\Exception $e) {
+            logger()->error('Error loading employees: ' . $e->getMessage());
+            $this->employees = collect([]);
+        }
+    }
+
+    /**
+     * Load Kepala Kejaksaan Tinggi
+     */
+    private function loadKepalaKejaksaan()
+    {
+        $this->kepalaKejaksaan = null;
+
+        try {
+            // Get employee with department "Kepala Kejaksaan Tinggi"
+            $kepala = \App\Models\Employee::active()
+                ->where('department', 'Kepala Kejaksaan Tinggi')
+                ->first();
+
+            $this->kepalaKejaksaan = $kepala;
+        } catch (\Exception $e) {
+            logger()->error('Error loading Kepala Kejaksaan: ' . $e->getMessage());
+            $this->kepalaKejaksaan = null;
+        }
+    }
+
+    /**
+     * Load Layanan Services from Banner Category
+     */
+    private function loadLayananServices()
+    {
+        $this->layananServices = collect([]);
+
+        try {
+            // Find Layanan category
+            $layananCategory = \App\Models\Banner\Category::active()
+                ->where('slug', 'layanan')
+                ->first();
+
+            if ($layananCategory) {
+                // Get all active banner contents from Layanan category
+                $services = \App\Models\Banner\Content::active()
+                    ->where('banner_category_id', $layananCategory->id)
+                    ->orderBy('sort', 'asc')
+                    ->orderBy('created_at', 'desc')
+                    ->get();
+
+                $this->layananServices = $services;
+            }
+        } catch (\Exception $e) {
+            logger()->error('Error loading Layanan services: ' . $e->getMessage());
+            $this->layananServices = collect([]);
         }
     }
 

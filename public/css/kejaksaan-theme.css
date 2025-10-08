@@ -6,6 +6,7 @@
     /* Primary Colors */
     --kejaksaan-gold: #D4AF37;
     --kejaksaan-green: #05AC69;
+    --kejaksaan-green-dark: #048B56;
 
     /* Secondary Colors */
     --kejaksaan-navy: #0D47A1;
@@ -21,8 +22,12 @@
     --kejaksaan-red: #C62828;
     --kejaksaan-success: #2E7D32;
 
+    /* Bootstrap Override - Primary Color to Green */
+    --bs-primary: #05AC69;
+    --bs-primary-rgb: 5, 172, 105;
+
     /* Gradients */
-    --gradient-primary: linear-gradient(135deg, var(--kejaksaan-green) 0%, var(--kejaksaan-navy) 100%);
+    --gradient-primary: linear-gradient(135deg, var(--kejaksaan-green) 0%, var(--kejaksaan-green-dark) 100%);
     --gradient-gold: linear-gradient(135deg, var(--kejaksaan-gold) 0%, var(--kejaksaan-gold-light) 100%);
 
     /* Shadows */

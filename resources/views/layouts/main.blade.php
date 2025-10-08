@@ -5,7 +5,7 @@
     <!-- Basic -->
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>{{ $title }} | Porto - Multipurpose Website Template</title>
+    <title>{{ $title }}</title>
     <meta name="keywords" content="{{ $metaKeywords }}" />
     <meta name="description" content="{{ $metaDescription }}">
     <meta name="author" content="okler.net">

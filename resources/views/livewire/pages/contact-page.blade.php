@@ -11,7 +11,7 @@
 
     {{-- Main Content --}}
     <section class="section bg-light position-relative border-0 m-0 p-0">
-        <div class="container py-4">
+        <div class="px-4 py-4">
             {{-- Success Message --}}
             @if($showSuccessMessage)
                 <div class="alert alert-success alert-dismissible fade show mb-4" role="alert">
@@ -130,8 +130,8 @@
 
                 {{-- Contact Form Column --}}
                 <div class="col-lg-8">
-                    <div class="card border-0 shadow-sm">
-                        <div class="card-header border-0" style="background: linear-gradient(135deg, #05AC69 0%, #048B56 100%); padding: 1.5rem;">
+                    <div class="card border-0 rounded-4 shadow-sm">
+                        <div class="card-header border-0 rounded-top-4" style="background: linear-gradient(135deg, #05AC69 0%, #048B56 100%); padding: 1.5rem;">
                             <h4 class="text-white mb-0">
                                 <i class="fas fa-paper-plane me-2"></i>Kirim Pesan
                             </h4>
@@ -255,7 +255,7 @@
                                     <div class="col-12">
                                         <button
                                             type="submit"
-                                            class="btn text-white px-4 py-2"
+                                            class="btn text-white px-4 py-2 rounded-pill"
                                             style="background: #05AC69;"
                                             wire:loading.attr="disabled">
                                             <span wire:loading.remove>
@@ -272,8 +272,8 @@
                     </div>
 
                     {{-- Map Section --}}
-                    <div class="card border-0 shadow-sm mt-4">
-                        <div class="card-header border-0 bg-light">
+                    <div class="card border-0 shadow-sm mt-4 rounded-4">
+                        <div class="card-header border-0 bg-light rounded-top-4">
                             <h5 class="mb-0">
                                 <i class="fas fa-map-marked-alt me-2" style="color: #05AC69;"></i>Lokasi Kami
                             </h5>

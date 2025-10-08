@@ -164,8 +164,31 @@ class NavigationService
 
     private function isActiveUrl(string $url): bool
     {
-        $currentPath = parse_url(request()->url(), PHP_URL_PATH);
+        // Handle placeholder URLs (dropdowns, external menus, etc.)
+        // These should never be active
+        if (empty($url) || $url === '#' || str_starts_with($url, 'javascript:')) {
+            return false;
+        }
+
+        // Parse URLs
+        $currentUrl = request()->url();
+        $currentPath = parse_url($currentUrl, PHP_URL_PATH);
         $menuPath = parse_url($url, PHP_URL_PATH);
+
+        // Handle null/false paths (invalid URLs)
+        if ($menuPath === null || $menuPath === false || $menuPath === '') {
+            return false;
+        }
+
+        if ($currentPath === null || $currentPath === false) {
+            $currentPath = '/';
+        }
+
+        // Normalize paths: remove trailing slashes, but keep root as '/'
+        $currentPath = $currentPath === '/' ? '/' : rtrim($currentPath, '/');
+        $menuPath = $menuPath === '/' ? '/' : rtrim($menuPath, '/');
+
+        // Exact match only
         return $currentPath === $menuPath;
     }
 
