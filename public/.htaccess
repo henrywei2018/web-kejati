@@ -1,8 +1,28 @@
 # ──────────────────────────────────────────────────────────────────
+# ModSecurity — disable for Livewire & admin panel
+#
+# Root cause of /livewire/update 404 on long content:
+# ModSecurity's OWASP XSS rules (941xxx) block POST requests whose
+# body contains HTML tags — exactly what Filament's RichEditor sends.
+# The WAF intercepts the request before PHP and returns a disguised 404.
+#
+# We only disable it for paths that legitimately handle HTML content.
+# The public frontend remains protected.
+# ──────────────────────────────────────────────────────────────────
+<IfModule mod_security2.c>
+    # Livewire AJAX endpoint — receives full component state including HTML content
+    <If "%{REQUEST_URI} =~ m#^/livewire/#">
+        SecRuleEngine Off
+    </If>
+
+    # Filament admin panel — editors, media uploads, settings forms
+    <If "%{REQUEST_URI} =~ m#^/admin#">
+        SecRuleEngine Off
+    </If>
+</IfModule>
+
+# ──────────────────────────────────────────────────────────────────
 # PHP limits (mod_php fallback — PHP-FPM reads .user.ini in project root)
-# Fixes /livewire/update 404 when saving posts with long content.
-# PHP silently drops POST body when limits are exceeded, causing Livewire
-# to receive an empty snapshot and return 404.
 # ──────────────────────────────────────────────────────────────────
 <IfModule mod_php.c>
     php_value post_max_size 64M
