@@ -9,7 +9,19 @@ use Illuminate\Contracts\View\View;
 use Illuminate\Support\ServiceProvider;
 use Opcodes\LogViewer\Facades\LogViewer;
 use App\Models\Blog\Post;
+use App\Models\Blog\Category as BlogCategory;
+use App\Models\Banner\Content as BannerContent;
+use App\Models\Banner\Category as BannerCategory;
+use App\Models\Employee;
+use App\Models\Navigation;
 use App\Observers\PostObserver;
+use App\Observers\BlogCategoryObserver;
+use App\Observers\BannerContentObserver;
+use App\Observers\BannerCategoryObserver;
+use App\Observers\EmployeeObserver;
+use App\Observers\NavigationObserver;
+use App\Observers\MediaObserver;
+use Spatie\MediaLibrary\MediaCollections\Models\Media;
 
 class AppServiceProvider extends ServiceProvider
 {
@@ -26,7 +38,14 @@ class AppServiceProvider extends ServiceProvider
      */
     public function boot(): void
     {
+        // Model observers — automatically clear relevant page caches when content changes
         Post::observe(PostObserver::class);
+        BlogCategory::observe(BlogCategoryObserver::class);
+        BannerContent::observe(BannerContentObserver::class);
+        BannerCategory::observe(BannerCategoryObserver::class);
+        Employee::observe(EmployeeObserver::class);
+        Navigation::observe(NavigationObserver::class);
+        Media::observe(MediaObserver::class);
 
         Table::configureUsing(function (Table $table): void {
             $table

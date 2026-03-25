@@ -5,6 +5,7 @@ namespace App\Livewire\Pages;
 use TomatoPHP\FilamentMediaManager\Models\Folder;
 use Livewire\Component;
 use Livewire\WithPagination;
+use Illuminate\Support\Facades\Cache;
 
 class ImageGalleryPage extends Component
 {
@@ -52,11 +53,15 @@ class ImageGalleryPage extends Component
 
     public function render()
     {
-        // Load folder Galeri (model_id 8) untuk collection 'gambar'
-        $folder = Folder::withoutGlobalScope('user')->findOrFail($this->folderModelId);
+        // Load folder Galeri — cached 10 min
+        $folder = Cache::remember('folder_galeri_' . $this->folderModelId, 600, function () {
+            return Folder::withoutGlobalScope('user')->findOrFail($this->folderModelId);
+        });
 
-        // Get all media from this folder with collection 'gambar'
-        $mediaItems = collect($folder->getMedia($this->collectionName));
+        // Get all media from this folder with collection 'gambar' — cached 10 min
+        $mediaItems = Cache::remember('folder_galeri_media_' . $this->folderModelId . '_' . $this->collectionName, 600, function () use ($folder) {
+            return collect($folder->getMedia($this->collectionName));
+        });
 
         // Apply search filter
         if ($this->search) {

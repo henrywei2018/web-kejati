@@ -4,6 +4,7 @@ namespace App\Livewire\Pages;
 
 use App\Models\Blog\Post;
 use Livewire\Component;
+use Illuminate\Support\Facades\Cache;
 
 class BeritaDetailPage extends Component
 {
@@ -23,12 +24,11 @@ class BeritaDetailPage extends Component
 
     public function render()
     {
-        // Get related posts
-        $relatedPosts = $this->post->getRelatedPosts(3);
-
-        // Get previous and next posts
-        $previousPost = $this->post->getPreviousPost();
-        $nextPost = $this->post->getNextPost();
+        // Cache keyed by slug so CacheInvalidationService::clearBeritaCaches($slug) can target it precisely
+        $slug = $this->post->slug;
+        $relatedPosts = Cache::remember("berita_related_{$slug}", 600, fn() => $this->post->getRelatedPosts(3));
+        $previousPost = Cache::remember("berita_prev_{$slug}", 600, fn() => $this->post->getPreviousPost());
+        $nextPost     = Cache::remember("berita_next_{$slug}", 600, fn() => $this->post->getNextPost());
 
         return view('livewire.pages.berita-detail-page', [
             'relatedPosts' => $relatedPosts,

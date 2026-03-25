@@ -5,6 +5,7 @@ namespace App\Livewire\Pages;
 use TomatoPHP\FilamentMediaManager\Models\Folder;
 use Livewire\Component;
 use Livewire\WithPagination;
+use Illuminate\Support\Facades\Cache;
 
 class PublikasiPage extends Component
 {
@@ -70,11 +71,15 @@ class PublikasiPage extends Component
 
     public function render()
     {
-        // Load folder (model_id 11)
-        $folder = Folder::withoutGlobalScope('user')->findOrFail($this->folderModelId);
+        // Load folder — cached 10 min
+        $folder = Cache::remember('folder_publikasi_' . $this->folderModelId, 600, function () {
+            return Folder::withoutGlobalScope('user')->findOrFail($this->folderModelId);
+        });
 
-        // Get all media from this folder (all collections)
-        $allMedia = collect($folder->media);
+        // Get all media from this folder — cached 10 min
+        $allMedia = Cache::remember('folder_publikasi_media_' . $this->folderModelId, 600, function () use ($folder) {
+            return collect($folder->media);
+        });
 
         // Get available collections for filter
         $availableCollections = $allMedia->pluck('collection_name')->unique()->sort()->values();

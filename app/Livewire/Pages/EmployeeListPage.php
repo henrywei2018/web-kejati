@@ -5,6 +5,7 @@ namespace App\Livewire\Pages;
 use App\Models\Employee;
 use Livewire\Component;
 use Livewire\WithPagination;
+use Illuminate\Support\Facades\Cache;
 
 class EmployeeListPage extends Component
 {
@@ -84,18 +85,28 @@ class EmployeeListPage extends Component
             ->orderBy($this->sortBy, $this->sortDirection)
             ->paginate(12);
 
-        $departments = Employee::active()
-            ->whereNotNull('department')
-            ->distinct()
-            ->pluck('department')
-            ->sort();
+        $departments = Cache::remember('employee_departments', 1800, function () {
+            return Employee::active()
+                ->whereNotNull('department')
+                ->distinct()
+                ->pluck('department')
+                ->sort()
+                ->values();
+        });
 
         $employmentStatuses = ['PNS', 'PPPK', 'Honorer', 'Kontrak'];
 
-        // Statistics
-        $totalEmployees = Employee::active()->count();
-        $totalPNS = Employee::active()->where('employment_status', 'PNS')->count();
-        $totalPPPK = Employee::active()->where('employment_status', 'PPPK')->count();
+        // Statistics — cached 30 min, these change infrequently
+        $stats = Cache::remember('employee_stats', 1800, function () {
+            return [
+                'total' => Employee::active()->count(),
+                'pns'   => Employee::active()->where('employment_status', 'PNS')->count(),
+                'pppk'  => Employee::active()->where('employment_status', 'PPPK')->count(),
+            ];
+        });
+        $totalEmployees = $stats['total'];
+        $totalPNS       = $stats['pns'];
+        $totalPPPK      = $stats['pppk'];
 
         return view('livewire.pages.employee-list-page', [
             'employees' => $employees,

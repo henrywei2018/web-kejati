@@ -28,6 +28,16 @@ class RouteServiceProvider extends ServiceProvider
             return Limit::perMinute(60)->by($request->user()?->id ?: $request->ip());
         });
 
+        // Limit contact form submissions: 5 per minute per IP to prevent abuse and protect DB/mail resources
+        RateLimiter::for('contact', function (Request $request) {
+            return Limit::perMinute(5)->by($request->ip());
+        });
+
+        // General web rate limit: 120 requests/min per IP — protects against scrapers and bursts
+        RateLimiter::for('web', function (Request $request) {
+            return Limit::perMinute(120)->by($request->ip());
+        });
+
         $this->routes(function () {
             Route::middleware('api')
                 ->prefix('api')

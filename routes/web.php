@@ -75,7 +75,7 @@ Route::get('/projects', function () {
     return view('pages.projects');
 })->name('projects');
 
-Route::get('/kontak', ContactPage::class)->name('contact');
+Route::get('/kontak', ContactPage::class)->name('contact')->middleware('throttle:contact');
 
 // Gallery Routes - Must be BEFORE dynamic pages
 Route::get('/galeri', GalleryPage::class)->name('gallery');

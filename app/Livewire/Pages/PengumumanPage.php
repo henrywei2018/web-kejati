@@ -5,6 +5,7 @@ namespace App\Livewire\Pages;
 use TomatoPHP\FilamentMediaManager\Models\Folder;
 use Livewire\Component;
 use Livewire\WithPagination;
+use Illuminate\Support\Facades\Cache;
 
 class PengumumanPage extends Component
 {
@@ -65,11 +66,15 @@ class PengumumanPage extends Component
 
     public function render()
     {
-        // Load folder Pengumuman
-        $folder = Folder::withoutGlobalScope('user')->findOrFail($this->folderId);
+        // Load folder Pengumuman — cached 10 min
+        $folder = Cache::remember('folder_pengumuman_' . $this->folderId, 600, function () {
+            return Folder::withoutGlobalScope('user')->findOrFail($this->folderId);
+        });
 
-        // Get all media from this folder
-        $mediaItems = collect($folder->getMedia($folder->collection));
+        // Get all media from this folder — cached 10 min
+        $mediaItems = Cache::remember('folder_pengumuman_media_' . $this->folderId, 600, function () use ($folder) {
+            return collect($folder->getMedia($folder->collection));
+        });
 
         // Apply search filter
         if ($this->search) {
@@ -101,10 +106,10 @@ class PengumumanPage extends Component
             ['path' => request()->url()]
         );
 
-        // Get detail media if selected
+        // Get detail media if selected — reuse the already-loaded cached collection
         $detailMedia = null;
         if ($this->detailMediaId) {
-            $detailMedia = $folder->getMedia($folder->collection)->firstWhere('id', $this->detailMediaId);
+            $detailMedia = $mediaItems->firstWhere('id', $this->detailMediaId);
         }
 
         return view('livewire.pages.pengumuman-page', [

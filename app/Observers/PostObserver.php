@@ -4,6 +4,7 @@ namespace App\Observers;
 
 use App\Models\Blog\Post;
 use App\Models\User;
+use App\Services\CacheInvalidationService;
 
 class PostObserver
 {
@@ -106,11 +107,10 @@ class PostObserver
      */
     public function created(Post $post): void
     {
-        // You can add any post-creation logic here
-        // For example, sending notifications to editors when authors submit for review
+        CacheInvalidationService::clearBeritaCaches();
+        CacheInvalidationService::clearHomePostCaches();
 
         if ($post->status === 'pending') {
-            // Send notification to editors/admins
             $this->notifyEditorsOfPendingPost($post);
         }
     }
@@ -120,10 +120,34 @@ class PostObserver
      */
     public function updated(Post $post): void
     {
-        // Handle status change notifications
+        // Clear both current and original slug in case the slug was renamed
+        CacheInvalidationService::clearBeritaCaches($post->slug);
+        if ($post->wasChanged('slug')) {
+            CacheInvalidationService::clearBeritaCaches($post->getOriginal('slug'));
+        }
+        CacheInvalidationService::clearHomePostCaches();
+
         if ($post->wasChanged('status')) {
             $this->handleStatusChangeNotifications($post);
         }
+    }
+
+    /**
+     * Handle the Post "deleted" event.
+     */
+    public function deleted(Post $post): void
+    {
+        CacheInvalidationService::clearBeritaCaches($post->slug);
+        CacheInvalidationService::clearHomePostCaches();
+    }
+
+    /**
+     * Handle the Post "restored" event (soft delete restored).
+     */
+    public function restored(Post $post): void
+    {
+        CacheInvalidationService::clearBeritaCaches();
+        CacheInvalidationService::clearHomePostCaches();
     }
 
     /**

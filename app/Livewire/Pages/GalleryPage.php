@@ -5,6 +5,7 @@ namespace App\Livewire\Pages;
 use TomatoPHP\FilamentMediaManager\Models\Folder;
 use Livewire\Component;
 use Livewire\WithPagination;
+use Illuminate\Support\Facades\Cache;
 
 class GalleryPage extends Component
 {
@@ -79,14 +80,16 @@ class GalleryPage extends Component
                 ->find($this->detailFolderId);
         }
 
-        // Get available folder collections untuk filter
-        $availableFolders = Folder::withoutGlobalScope('user')
-            ->where('is_public', true)
-            ->where('is_hidden', false)
-            ->select('collection', 'name', 'icon', 'color')
-            ->distinct()
-            ->get()
-            ->keyBy('collection');
+        // Get available folder collections untuk filter — cached 10 min
+        $availableFolders = Cache::remember('gallery_available_folders', 600, function () {
+            return Folder::withoutGlobalScope('user')
+                ->where('is_public', true)
+                ->where('is_hidden', false)
+                ->select('collection', 'name', 'icon', 'color')
+                ->distinct()
+                ->get()
+                ->keyBy('collection');
+        });
 
         return view('livewire.pages.gallery-page', [
             'folders' => $folders,

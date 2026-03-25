@@ -36,7 +36,9 @@ class Kernel extends HttpKernel
             \Illuminate\View\Middleware\ShareErrorsFromSession::class,
             \App\Http\Middleware\VerifyCsrfToken::class,
             \Illuminate\Routing\Middleware\SubstituteBindings::class,
-            // \App\Http\Middleware\SecurityHeaders::class, // Uncomment for Enable SecurityHeaders Check
+            \App\Http\Middleware\SecurityHeaders::class,
+            // Server-side full-page cache for guest users on public GET pages
+            \App\Http\Middleware\CachePublicResponse::class,
         ],
 
         'api' => [

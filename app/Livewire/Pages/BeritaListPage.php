@@ -6,6 +6,7 @@ use App\Models\Blog\Post;
 use App\Models\Blog\Category;
 use Livewire\Component;
 use Livewire\WithPagination;
+use Illuminate\Support\Facades\Cache;
 
 class BeritaListPage extends Component
 {
@@ -84,33 +85,48 @@ class BeritaListPage extends Component
         // Paginate
         $posts = $query->paginate(12);
 
-        // Get featured post (for hero section)
-        $featuredPost = Post::published()
-            ->featured()
-            ->orderBy('published_at', 'desc')
-            ->first();
+        // Get featured post (for hero section) — cached 5 min
+        $featuredPost = Cache::remember('berita_featured_post', 300, function () {
+            return Post::published()
+                ->featured()
+                ->orderBy('published_at', 'desc')
+                ->first();
+        });
 
-        // Get all categories for sidebar
-        $categories = Category::active()
-            ->withCount(['posts' => function($q) {
-                $q->published();
-            }])
-            ->orderBy('name')
-            ->get();
+        // Get all categories for sidebar — cached 10 min
+        $categories = Cache::remember('berita_sidebar_categories', 600, function () {
+            return Category::active()
+                ->withCount(['posts' => function ($q) {
+                    $q->published();
+                }])
+                ->orderBy('name')
+                ->get();
+        });
 
-        // Get popular posts for sidebar
-        $popularPosts = Post::published()
-            ->orderBy('view_count', 'desc')
-            ->limit(5)
-            ->get();
+        // Get popular posts for sidebar — cached 10 min
+        $popularPosts = Cache::remember('berita_sidebar_popular_posts', 600, function () {
+            return Post::published()
+                ->orderBy('view_count', 'desc')
+                ->limit(5)
+                ->get();
+        });
 
-        // Get popular tags from published posts
-        $allTags = Post::published()->with('tags')->get()->pluck('tags')->flatten();
-        $popularTags = $allTags->groupBy('id')->map(function($tags) {
-            $tag = $tags->first();
-            $tag->taggables_count = $tags->count();
-            return $tag;
-        })->sortByDesc('taggables_count')->take(20);
+        // Get popular tags — cached 10 min, uses efficient DB aggregation instead of loading all posts
+        $popularTags = Cache::remember('berita_popular_tags', 600, function () {
+            return \Spatie\Tags\Tag::query()
+                ->join('taggables', 'tags.id', '=', 'taggables.tag_id')
+                ->join('blog_posts', function ($join) {
+                    $join->on('taggables.taggable_id', '=', 'blog_posts.id')
+                         ->where('taggables.taggable_type', Post::class);
+                })
+                ->where('blog_posts.status', 'published')
+                ->where('blog_posts.published_at', '<=', now())
+                ->selectRaw('tags.*, COUNT(taggables.tag_id) as taggables_count')
+                ->groupBy('tags.id')
+                ->orderByDesc('taggables_count')
+                ->take(20)
+                ->get();
+        });
 
         return view('livewire.pages.berita-list-page', [
             'posts' => $posts,
