@@ -1,0 +1,51 @@
+name: Deploy to cPanel
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  deploy:
+    name: Upload via FTP & Run Deploy Hook
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 2  # needed for changed-files detection
+
+      # ── 1. Upload changed files via FTP ──────────────────────────────
+      - name: Deploy via FTP
+        uses: SamKirkland/FTP-Deploy-Action@v4.3.5
+        with:
+          server:   ${{ secrets.FTP_HOST }}
+          username: ${{ secrets.FTP_USERNAME }}
+          password: ${{ secrets.FTP_PASSWORD }}
+          port:     ${{ secrets.FTP_PORT || 21 }}
+          # Adjust this to match your cPanel public_html path
+          server-dir: ${{ secrets.FTP_SERVER_DIR || '/' }}
+          local-dir: ./
+          # Never overwrite these on server — they contain production secrets
+          exclude: |
+            **/.git*
+            **/.git*/**
+            **/node_modules/**
+            .env
+            .env.*
+            !.env.example
+            storage/logs/**
+            storage/framework/cache/**
+            storage/framework/sessions/**
+            storage/framework/views/**
+            bootstrap/cache/**
+
+      # ── 2. Trigger artisan commands via deploy hook ───────────────────
+      - name: Run deploy hook (migrate + cache warm)
+        run: |
+          curl --fail --silent --show-error \
+            "${{ secrets.APP_URL }}/deploy-hook?token=${{ secrets.DEPLOY_HOOK_TOKEN }}" \
+            | tee /tmp/hook_output.txt
+          cat /tmp/hook_output.txt
+        timeout-minutes: 3
