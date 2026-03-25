@@ -27,8 +27,9 @@ class CachePublicResponse
     /** Pages that should never be cached (dynamic/interactive) */
     private array $excludedPrefixes = [
         'admin',
-        'livewire',
+        'livewire',       // Livewire upload/preview/update endpoints
         'kontak',
+        'storage',        // Direct file access should never be cached by this middleware
     ];
 
     /** Default cache TTL in seconds */

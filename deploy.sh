@@ -38,7 +38,9 @@ php artisan icons:cache 2>/dev/null || true
 
 echo ""
 echo "==> [6/8] Linking storage..."
-php artisan storage:link 2>/dev/null || true
+# storage:link is critical — without it all uploaded files return 404.
+# Exits with "already exists" if already linked, which is fine.
+php artisan storage:link || echo "  ⚠ storage:link already exists or failed — verify public/storage symlink manually"
 
 echo ""
 echo "==> [7/8] Setting file permissions..."
