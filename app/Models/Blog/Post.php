@@ -115,8 +115,8 @@ class Post extends Model implements HasMedia
         // Check if content is already HTML (from RichEditor) or Markdown
         // If it contains HTML tags, treat as HTML, otherwise convert from Markdown
         if (strip_tags($value) !== $value) {
-            // Content contains HTML tags, use it directly
-            $this->attributes['content_html'] = $value;
+            // Content contains HTML tags — normalize Trix editor output before storing
+            $this->attributes['content_html'] = $this->normalizeTrixHtml($value);
         } else {
             // Content is plain text or markdown, convert to HTML
             $converter = new GithubFlavoredMarkdownConverter([
@@ -135,6 +135,55 @@ class Post extends Model implements HasMedia
         // Calculate reading time (avg reading speed: 200 words per minute)
         $wordCount = str_word_count(strip_tags($this->attributes['content_html']));
         $this->attributes['reading_time'] = ceil($wordCount / 200);
+    }
+
+    /**
+     * Accessor: return normalized HTML for rendering in the frontend.
+     * Applies to all posts (including those saved before normalization was added).
+     */
+    public function getContentHtmlAttribute($value): string
+    {
+        if (empty($value)) {
+            return '';
+        }
+
+        return $this->normalizeTrixHtml($value);
+    }
+
+    /**
+     * Normalize HTML output from Filament's RichEditor (Trix).
+     *
+     * Trix wraps paragraphs in <div> instead of <p>, and inserts
+     * <div><br></div> as empty-line spacers. This converts them to
+     * standard <p> tags so CSS can style them predictably.
+     */
+    private function normalizeTrixHtml(string $html): string
+    {
+        // 1. Strip Trix's empty-line spacers (<div><br></div>) — we rely on
+        //    margin-bottom on <p> for spacing instead.
+        $html = preg_replace('/<div>\s*<br\s*\/?>\s*<\/div>/i', '', $html);
+
+        // 2. Convert bare <div>…</div> wrappers that Trix uses for paragraphs
+        //    into proper <p>…</p> tags. Skip divs that contain block-level
+        //    children (headings, lists, blockquote, pre, nested divs) so we
+        //    don't break structured content.
+        $html = preg_replace_callback(
+            '/<div(?:\s[^>]*)?>(.+?)<\/div>/is',
+            function (array $m): string {
+                $inner = $m[1];
+                // Don't convert if it contains block-level elements
+                if (preg_match('/<(div|p|ul|ol|li|h[1-6]|blockquote|pre|table)\b/i', $inner)) {
+                    return $m[0];
+                }
+                return '<p>' . $inner . '</p>';
+            },
+            $html
+        );
+
+        // 3. Collapse runs of consecutive blank <p> tags left over after step 1
+        $html = preg_replace('/(<p>\s*<\/p>\s*){2,}/', '<p></p>', $html);
+
+        return trim($html);
     }
 
     /**

@@ -356,41 +356,89 @@
             color: #333;
         }
 
+        /* Paragraphs — handle both <p> (markdown/normalized) and bare <div> (Trix) */
+        .article-content p,
+        .article-content > div {
+            margin-bottom: 1.5rem;
+            line-height: 1.8;
+        }
+
+        /* Remove extra space from truly empty paragraphs */
+        .article-content p:empty {
+            margin-bottom: 0.5rem;
+        }
+
+        .article-content h1,
         .article-content h2,
         .article-content h3,
-        .article-content h4 {
+        .article-content h4,
+        .article-content h5,
+        .article-content h6 {
             margin-top: 2rem;
             margin-bottom: 1rem;
             font-weight: 600;
+            line-height: 1.3;
+            color: #1a1a1a;
         }
 
-        .article-content p {
-            margin-bottom: 1.5rem;
-        }
+        .article-content h1 { font-size: 1.8rem; }
+        .article-content h2 { font-size: 1.5rem; }
+        .article-content h3 { font-size: 1.25rem; }
 
         .article-content img {
             max-width: 100%;
             height: auto;
             border-radius: 8px;
             margin: 1.5rem 0;
+            display: block;
         }
 
         .article-content blockquote {
             border-left: 4px solid #dc3545;
-            padding-left: 1.5rem;
+            padding: 0.75rem 1.5rem;
             margin: 1.5rem 0;
             font-style: italic;
-            color: #666;
+            color: #555;
+            background: #fff8f8;
+            border-radius: 0 6px 6px 0;
         }
 
-        .article-content ul,
-        .article-content ol {
-            margin-bottom: 1.5rem;
+        /* ── Lists ──────────────────────────────────────────────────────────
+           Bootstrap resets list-style on ul/ol. We must explicitly reinstate
+           bullets/numbers inside .article-content to override that reset.
+        ──────────────────────────────────────────────────────────────────── */
+        .article-content ul {
+            list-style-type: disc;
             padding-left: 2rem;
+            margin-bottom: 1.5rem;
+            margin-top: 0;
         }
 
+        .article-content ol {
+            list-style-type: decimal;
+            padding-left: 2rem;
+            margin-bottom: 1.5rem;
+            margin-top: 0;
+        }
+
+        /* Make sure each li renders as a list item (not flex/block override) */
         .article-content li {
-            margin-bottom: 0.5rem;
+            display: list-item;
+            margin-bottom: 0.4rem;
+            line-height: 1.7;
+        }
+
+        /* Nested lists */
+        .article-content ul ul           { list-style-type: circle;  margin-top: 0.4rem; margin-bottom: 0.4rem; }
+        .article-content ul ul ul        { list-style-type: square;  }
+        .article-content ol ol           { list-style-type: lower-alpha; margin-top: 0.4rem; margin-bottom: 0.4rem; }
+
+        /* Tighten spacing when a list follows a heading */
+        .article-content h2 + ul,
+        .article-content h3 + ul,
+        .article-content h2 + ol,
+        .article-content h3 + ol {
+            margin-top: 0.5rem;
         }
 
         .article-content code {
@@ -398,14 +446,41 @@
             padding: 0.2rem 0.4rem;
             border-radius: 4px;
             font-size: 0.9em;
+            color: #c7254e;
+            border: 1px solid #eee;
         }
 
         .article-content pre {
             background: #f8f9fa;
-            padding: 1rem;
+            padding: 1rem 1.25rem;
             border-radius: 8px;
             overflow-x: auto;
             margin: 1.5rem 0;
+            border: 1px solid #e9ecef;
+        }
+
+        .article-content pre code {
+            background: none;
+            border: none;
+            color: inherit;
+            padding: 0;
+        }
+
+        /* Links inside article */
+        .article-content a {
+            color: #dc3545;
+            text-decoration: underline;
+            text-underline-offset: 2px;
+        }
+
+        .article-content a:hover {
+            color: #a71d2a;
+        }
+
+        /* Strong / bold */
+        .article-content strong,
+        .article-content b {
+            font-weight: 700;
         }
 
         .post-card {
