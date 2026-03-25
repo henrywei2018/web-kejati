@@ -20,3 +20,4 @@ yarn-error.log
 /-local
 /docs
 setup.php.disabled
+*.zip
