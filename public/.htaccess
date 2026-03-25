@@ -1,4 +1,19 @@
 # ──────────────────────────────────────────────────────────────────
+# PHP limits (mod_php fallback — PHP-FPM reads .user.ini in project root)
+# Fixes /livewire/update 404 when saving posts with long content.
+# PHP silently drops POST body when limits are exceeded, causing Livewire
+# to receive an empty snapshot and return 404.
+# ──────────────────────────────────────────────────────────────────
+<IfModule mod_php.c>
+    php_value post_max_size 64M
+    php_value upload_max_filesize 64M
+    php_value max_input_vars 10000
+    php_value max_input_nesting_level 128
+    php_value max_execution_time 120
+    php_value memory_limit 256M
+</IfModule>
+
+# ──────────────────────────────────────────────────────────────────
 # Static Asset Caching
 # Tells browsers to cache CSS/JS/images locally for 1 year.
 # Vite already adds content hashes to filenames so cache-busting

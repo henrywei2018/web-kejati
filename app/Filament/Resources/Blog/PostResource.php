@@ -144,6 +144,7 @@ class PostResource extends Resource implements HasShieldPermissions
                                     ->placeholder('Write your post content here...')
                                     ->fileAttachmentsDisk('public')
                                     ->fileAttachmentsDirectory('blog/posts/content-uploads')
+                                    ->fileAttachmentsVisibility('public')
                                     ->columnSpanFull()
                                     ->maxLength(65535)
                                     ->helperText('Format your content using the toolbar above')

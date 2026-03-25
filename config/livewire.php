@@ -53,7 +53,7 @@ return [
 
     'temporary_file_upload' => [
         'disk'        => null,    // Default: 'default' disk
-        'rules'       => null,    // Default: ['required', 'file', 'max:12288'] (12 MB)
+        'rules'       => ['required', 'file', 'max:65536'],  // 64 MB — matches post_max_size in .user.ini
         'directory'   => null,    // Default: 'livewire-tmp'
         'middleware'  => null,    // Default: 'throttle:60,1'
         'preview_mimes' => [
